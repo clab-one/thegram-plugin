@@ -1,0 +1,16 @@
+{
+	"name": "thegram-cloud",
+	"version": "0.1.0",
+	"description": "Thegram memory for cloud agents: the gram_* tools over https://vault.thegram.one/mcp, no Mac or desktop app required.",
+	"author": {
+		"name": "clab-one"
+	},
+	"repository": "https://github.com/clab-one/thegram-plugin",
+	"license": "UNLICENSED",
+	"keywords": [
+		"memory",
+		"thegram",
+		"mcp",
+		"remote"
+	]
+}

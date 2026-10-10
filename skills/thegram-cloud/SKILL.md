@@ -1,0 +1,120 @@
+---
+name: thegram-cloud
+description: Read and write Thegram project memory and documents from a cloud agent through the remote thegram MCP server (vault.thegram.one). Use .gram by default; supports decisions, history and backfill through gram_* tools.
+---
+
+# Thegram project memory (cloud)
+
+Thegram holds canonical project memory and documents. The tools are the remote `thegram` MCP server's `gram_<name>` tools, served by https://vault.thegram.one/mcp with the person's Thegram token. They behave like the desktop app's local tools; no Mac needs to be running.
+
+## Where files live
+
+- `gram_projects` lists the person's mounts as `{key, id, kind, name, count, access}`: each Thegram Cloud vault (`kind: vault`, `name` = vault name) and each connected Google Drive account (`kind: drive`, `name` = `Google Drive (<email>)`). Every path starts with the mount `key`, never the display name: `@mounts/<id>/memory.gram`, `@mounts/google-drive-<account>/proj/notes.gram`.
+- The person decides where a document lives. Ask which mount to use when it is not obvious; never copy a document to another mount on your own.
+- A vault mount accepts writes only for top-level documents (`@mounts/<id>/<name>.gram`, name from letters, digits, `-`, `_`); a Drive mount may use folders.
+- A mount with `access: read` cannot be written. A write result's `sync.state` must be `synced` before you report the change as saved.
+
+## Documents
+
+- Keep one memory document per project, e.g. `@mounts/<id>/memory.gram`, with Overview, Architecture, Plan, Decisions and Log. Choose other filenames freely; reuse existing documents.
+- Author project documents as `.gram`. Documents support ordinary prose, tables and code. The durable-outcome filter applies only to memory records. Read `gram_profile {task: "create"}` or `{task: "rich"}` for authoring; use the rev/hash write protocol below.
+
+## Session
+
+1. Call `gram_projects`, then `gram_brief {folder: "<mount key>"}` (or `{path}` for one document). Keep `next` and pass it to `gram_changes {folder, since}` on a later visit.
+2. Write one patch per durable outcome (a decision, a shipped change or incident, a risk, task or blocker, a verified metric, a status change) when it happens.
+3. Before the final answer, every task you opened is `completed`, `blocked` or deliberately `active`, and every open question is a decision with `x open`.
+
+## Read
+
+- Orient: `gram_brief {folder}` returns each document's `rev`/`hash`, counts, open work and `next`; `gram_changes {folder, since}` lists later changes.
+- Find: `gram_recall {query, folder}` returns `path#id` hits; read selected records with `gram_context {ids, fields: [...]}`. `gram_relations {from}` lists links both ways. A decision has no date field: `gram_read` lines and `implemented` in `gram_context`/`gram_get` give the date of the earliest event that `implements` it, and a decision no event implements has no date. `gram_read {path}` gives the outline; `{path, section}` gives one section. Lines are ``**title** · type `id`[ · x][ · p][ · at][ · due date][ · value unit @ observed][ · replaces ids]``; type/x/p are raw, `d` follows next, and there is no `records` array.
+- Cheapest read: use inclusive from/to date filters or a date/month/year query token for date questions; ids stay short slugs and dates in event titles are optional, never a workaround. Defaults: event at, metric observed, task due, otherwise at; date names another field. Recall scope means exact s-tag membership (not section/type); use type to filter record type. Semantic search is not available on the cloud server yet (`gram_capabilities` says why); `auto` answers with keyword matching, so use distinctive words, `exact`, or date filters. If hits do not answer, try once more with another mode, a reworded query or a date filter before concluding nothing is recorded.
+- When and why: `gram_range {path, query}` returns revisions that changed matching records.
+- Past reads: `effective_at` (or `revision`, `recorded_at`) works on `gram_read`, `gram_get` and `gram_list {path: <.gram>}` as arguments, on `gram_state` inside `selector` and on `gram_context` inside each `ids[]` item. `gram_list` with `select` ignores `revision` and `effective_at`; use date filters on `select` for current records. `gram_range {path, start: 0}` lists revisions with their `effective_at` (pass `more` as `start`).
+
+## Write
+
+Each `gram_patch` or `gram_create` is one revision:
+
+```json
+{"path": "@mounts/<id>/memory.gram", "base_revision": 7, "expected_hash": "<16 hex>", "request_id": "<stable-slug>", "operations": []}
+```
+
+`base_revision` and `expected_hash` come from `gram_brief`, or from the `doc` of the write you just made. Give `effective_at` only for a past fact, as a full ISO time with a zone (`2025-01-02T03:04:05Z`, `2025-01-02T12:04:05+09:00`).
+
+| op | shape |
+|---|---|
+| add | `{"op":"add","record":{"type":"decision","id":"dec-<slug>","fields":{"t":["…"],"d":["…"],"x":["accepted"]},"links":[["part-of","prj-<slug>"]]},"place":{"section":"Decisions"}}` |
+| set | `{"op":"set","entity":"dec-<slug>","key":"x","value":"superseded"}` |
+| link, unlink | `{"op":"link","entity":"dec-new","predicate":"replaces","target":"dec-old"}` |
+| edit-text | `{"op":"edit-text","entity":"doc","kind":"rich","old":"<exact text, once>","new":"…"}` |
+
+- `add` field values are arrays; `set` takes one string.
+- `place` is `{"section": "<heading>"}`, `{"after": "<id>"}` or `"end"`. A record added without `place` exists but is not in the body.
+- `place` cannot share a patch with `edit-text`. In `edit-text`, `[[id]]` on its own line places a record and `[label](@id)` mentions one.
+- Operations apply in order, so a later one may link to or place after a record added earlier in the same patch.
+- Never `remove` a record; change its status instead.
+
+## Records
+
+- Types: `project goal requirement assumption decision task blocker risk event artifact evidence metric component system service source history knowledge context person agent run asset`. Any other type is rejected.
+- Fields: t (required, one line), d, x, p (high, medium, low), owner, tag, source, ref, s (scope tag); due on a task, at on an event, value, unit and observed on a metric. These are the profile fields; the Core also accepts syntactically valid extension field keys. The app stores those and adds W_EXTENSION_FIELD to the receipt; prefer profile fields unless an extension is intentional. Invalid field-key syntax fails with E_FIELD. source must name a source record; otherwise cite with ref.
+- Predicates: use only `part-of implements depends derives related supports contradicts replaces blocks enables`. An `add` with another predicate succeeds, but `gram_get`, `gram_context` and `gram_relations` never return that link.
+- Status `x` accepts any string, and the brief lists a misspelled status as open. A task or risk without `x` never appears in the brief's open list.
+
+| type | `x` |
+|---|---|
+| task, risk, blocker | `open`, `active` (work under way; shown as in progress), `blocked`, `completed`; a dropped task `superseded` |
+| decision | `accepted`; an open question `open`; a replaced one `superseded` |
+| goal, project | `active`, then `completed` |
+| requirement, assumption | `accepted`, then `superseded` |
+| component, system, event, evidence, artifact | none |
+
+- One fact per record: `t` is one line and `d` is one sentence that states the outcome.
+- Sections: Overview (project, metrics), Architecture (components), Plan (goals, requirements, assumptions, tasks, risks, blockers), Decisions, Log (history, events, artifacts, evidence).
+- The graph draws only explicit links, and every record needs a path to the project. Link a component `part-of` the project, and optionally `implements` a decision or `depends` another component. Link a decision, goal, requirement, assumption or history record `part-of` the project. Link an event `implements` the decisions it carried out, otherwise `part-of` the project. Link an artifact `derives` its event, evidence `supports` a decision or risk, a task `part-of` the goal it serves, a metric `part-of` the project, and otherwise a task, risk or blocker `related` to what it concerns.
+- To replace a decision, `set x superseded` on the old record and `link replaces` from the new one.
+- An event has `at` (ISO date or time) and a `ref` to its commit, PR or release.
+
+A new project memory is one `gram_create`. Records in it may link to each other in any order; a record not placed as `[[id]]` in `text` is not in the body.
+
+```json
+{"path": "@mounts/<id>/memory.gram", "title": "…", "base_revision": null,
+ "content": {"text": "# Overview\n\n[[prj-<slug>]]\n\n# Architecture\n\n# Plan\n\n# Decisions\n\n# Log\n",
+             "fields": {"d": ["<one-line summary>"]},
+             "records": [{"type": "project", "id": "prj-<slug>", "fields": {"t": ["…"], "d": ["…"], "x": ["active"]}}]}}
+```
+
+## What the app draws
+
+The desktop app draws a dashboard for every document from its records and history, and Mermaid flowcharts in the body.
+
+- A metric's chart is the history of that one record. Keep one `metric` per measured quantity with a stable id, and record each new measurement in one patch: `{"op":"set","entity":"met-<slug>","key":"value","value":"42"}` plus `{"op":"set","entity":"met-<slug>","key":"observed","value":"2026-10-10T09:00:00+09:00"}`. A new record per measurement or per era is a single point and never becomes a chart.
+- `value` is one plain number (`-?digits[.digits]`: no unit, `,`, `~` or `%`); anything else shows as text without a chart. Keep `unit` constant (`percent` shows as `%`); another unit starts a new series. `observed` is when the value was measured, as a full ISO time with a zone; when every point has one, the chart's axis is time.
+- A goal shows progress as the `completed` share of the tasks in the same document that link to it, superseded ones excluded, so link each task to its goal.
+- The overview counts what needs a person: `blocked` tasks, open blockers and risks, and decisions or requirements with `x open`. Tasks appear in status lanes, events on a timeline by `at`, and the document's `d` as its summary line.
+- `{"op":"set","entity":"doc","key":"view","value":"dashboard"}` makes the document open as a dashboard; set `d` on `doc` the same way.
+- Diagrams: write Mermaid in a code block with language `mermaid`; the document view draws `flowchart` and `graph` diagrams, and other kinds stay as source. Put the system diagram under Architecture. Label only `-->` edges: a line with a label on `==>` or `-.->` is silently dropped.
+
+## Errors
+
+| code | cause → fix |
+|---|---|
+| `STALE_REVISION` | another revision landed → `gram_brief`, check the change is still needed, resend under a new `request_id` |
+| `E_ARGUMENT` | field value not an array, `set` value not a string, `place` with `edit-text`, or unknown section |
+| `E_MISSING_TITLE` | no `t` |
+| `E_FIELD` | field key outside the list (e.g. `next_action`) |
+| `E_MISSING_TARGET` | a link names an id that does not exist yet → add the target first |
+| `E_MISSING_SOURCE` | `source` names a non-`source` record → use `ref` |
+| `E_AMBIGUOUS_TEXT` | `edit-text` `old` not found exactly once → copy it from `gram_read`, widen it |
+| `E_DUPLICATE_ID` | id exists → `set` that record or pick another id |
+| `E_DUPLICATE_FIELD` | unknown `type` |
+| `E_LINK` | `link`/`unlink` with an unknown predicate |
+| `E_TIME` | `effective_at` without a time or zone |
+| `E_REQUEST_REUSE` | the `request_id` already succeeded with a different request → new id |
+| `STORAGE_CONFLICT` | the file changed in its storage (another device, the desktop app, Drive) between your read and write → `gram_brief`, then resend under a new `request_id` |
+| `PROVIDER_AUTH_REQUIRED` | the person must reconnect that Google Drive account at vault.thegram.one; tell them, do not write elsewhere instead |
+| `E_FORBIDDEN` | the mount is read-only for this person (vault viewer) |
+
+Use one `request_id` per intended change. After an error, fix the request and resend it under a new id. After a lost answer, resend the identical request with the same id; if it had landed, Thegram replays its receipt (`"replayed": true`).

@@ -1,0 +1,14 @@
+{
+	"name": "thegram-cloud",
+	"owner": {
+		"name": "clab-one"
+	},
+	"description": "Thegram memory for cloud agents.",
+	"plugins": [
+		{
+			"name": "thegram-cloud",
+			"source": "./",
+			"description": "Thegram memory for cloud agents: the gram_* tools over https://vault.thegram.one/mcp, no Mac or desktop app required."
+		}
+	]
+}
