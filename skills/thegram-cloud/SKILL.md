@@ -116,5 +116,6 @@ The desktop app draws a dashboard for every document from its records and histor
 | `STORAGE_CONFLICT` | the file changed in its storage (another device, the desktop app, Drive) between your read and write → `gram_brief`, then resend under a new `request_id` |
 | `PROVIDER_AUTH_REQUIRED` | the person must reconnect that Google Drive account at vault.thegram.one; tell them, do not write elsewhere instead |
 | `E_FORBIDDEN` | the mount is read-only for this person (vault viewer) |
+| `CONSENT_REQUIRED` | the person has not finished Thegram sign-up (terms, privacy, age check); give them the URL from the message, do not retry until they confirm |
 
 Use one `request_id` per intended change. After an error, fix the request and resend it under a new id. After a lost answer, resend the identical request with the same id; if it had landed, Thegram replays its receipt (`"replayed": true`).
