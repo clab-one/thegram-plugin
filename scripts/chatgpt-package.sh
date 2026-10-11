@@ -4,7 +4,7 @@
 set -eu
 src=$1
 version=$2
-out=${3:-gram-chatgpt-$version.zip}
+out=${3:-thegram-chatgpt-$version.zip}
 root=$(cd "$(dirname "$0")/.." && pwd)
 work=$(mktemp -d)
 trap 'rm -rf "$work"' EXIT

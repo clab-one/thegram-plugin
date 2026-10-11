@@ -13,25 +13,46 @@ New to Thegram? The step-by-step guide at https://thegram.one/install/#chatgpt c
 
 Agents write to your Thegram Cloud vault by default and to Google Drive only when you ask. Nothing is copied between Thegram Cloud and Drive; the desktop app shows the same files when you mount the same vaults or Drive accounts there. Documents that exist only in a local folder on your Mac are not visible to cloud agents.
 
-## Connect a ChatGPT dot
+## Before you install
 
-1. Sign in at https://vault.thegram.one. The first sign-in creates your Thegram account; finish signing up (date of birth, terms). Agents keep memory in your Thegram Cloud vault; if you have none, Thegram creates one named `Thegram` the first time an agent connects. To let agents write to Google Drive when you ask for it, connect it under **Settings → Connections → Add account**.
-2. Open https://chatgpt.com/plugins (in the ChatGPT Mac app: **Settings → Plugins → Browse directory**), select **Add**, then **Create custom MCP server**.
-3. Name it `gram` (what you type after `@`), enter `https://vault.thegram.one/mcp` as the server URL and keep **OAuth** authentication. Leave **Advanced OAuth settings** alone: ChatGPT detects the Thegram sign-in and picks the client ID metadata document (CIMD) registration itself.
-4. Tick the risk notice and select **Create as plugin**.
-5. In the **Connect gram** dialog select **Continue to gram**, sign in with your Thegram account if asked, and select **Authorize** on the consent screen. ChatGPT returns to its plugin list with gram installed. The server itself tells ChatGPT to use Thegram on its own, keep memory in your vault and save what it reads from other connectors.
-6. Optional: add the `thegram-cloud` skill for the full write rules. On the plugin's page select **⋯ → Download plugin ZIP**, run `scripts/chatgpt-package.sh ~/Downloads/plugin.zip 1.3.0` in this repository, then select **⋯ → Upload new version** and choose the `gram-chatgpt-1.3.0.zip` it printed. Use a higher version for each later upload.
-7. In the dot's chat, select **+**, then gram under **Plugins** (it inserts `@gram`). After that, ask normally; for example "record this year's Slack history by topic" makes the dot read Slack and write it to Thegram.
+Sign in once at https://vault.thegram.one. The first sign-in creates your Thegram account; finish signing up (date of birth, terms). Agents keep memory in your Thegram Cloud vault; if you have none, Thegram creates one named `Thegram` the first time an agent connects. To let agents write to Google Drive when you ask for it, connect it under **Settings → Connections → Add account**.
 
-The dot keeps working while your Mac is off: ChatGPT renews its access with a refresh token. Disconnect the plugin in ChatGPT to cut it off. ChatGPT shows your ChatGPT account name as the plugin's developer; `developerName` in the package is ignored for private plugins.
+## ChatGPT
 
-## Other MCP clients
+1. Open https://chatgpt.com/plugins (in the ChatGPT Mac app: **Settings → Plugins → Browse directory**), select **Add**, then **Create custom MCP server**.
+2. Name it `Thegram`, enter `https://vault.thegram.one/mcp` as the server URL and keep **OAuth** authentication. Leave **Advanced OAuth settings** alone: ChatGPT detects the Thegram sign-in and picks the client ID metadata document (CIMD) registration itself.
+3. Tick the risk notice and select **Create as plugin**.
+4. In the **Connect Thegram** dialog select **Continue to Thegram**, sign in with your Thegram account if asked, and select **Authorize** on the consent screen. The server itself tells ChatGPT to use Thegram on its own, keep memory in your vault and save what it reads from other connectors.
+5. In a chat, select **+**, then Thegram under **Plugins** (it inserts `@Thegram`), and ask normally; for example "record this year's Slack history by topic" makes ChatGPT read Slack and write it to Thegram.
+6. Optional: add the `thegram-cloud` skill for the full write rules. On the plugin's page select **⋯ → Download plugin ZIP**, run `scripts/chatgpt-package.sh ~/Downloads/plugin.zip 1.4.0` in this repository, then select **⋯ → Upload new version** and choose the ZIP it printed. Use a higher version for each later upload.
 
-| Client | Setup |
-|---|---|
-| Claude Code | install this repository as a plugin, or `claude mcp add --transport http thegram https://vault.thegram.one/mcp`, then authenticate from `/mcp` |
-| Codex | install the plugin from a marketplace that lists this repository |
-| Anything else | Streamable HTTP at `https://vault.thegram.one/mcp`; the 401 response names the OAuth metadata (RFC 9728) |
+ChatGPT keeps access while your Mac is off by renewing it with a refresh token; disconnect the plugin in ChatGPT to cut it off. ChatGPT shows your own account name as the developer of a plugin you create this way.
+
+## ChatGPT desktop (Work, Codex) and Codex CLI
+
+```sh
+codex plugin marketplace add clab-one/thegram-plugin
+codex plugin add thegram-cloud@thegram
+```
+
+Or, after the first command, restart the ChatGPT desktop app and install Thegram from the **Thegram** marketplace under **Plugins**. It brings the MCP server and the `thegram-cloud` skill; sign in when it first connects. ChatGPT marks such plugins **Desktop only**: use the steps above for ChatGPT on the web and mobile.
+
+## Claude Code
+
+```sh
+claude plugin marketplace add clab-one/thegram-plugin
+claude plugin install thegram-cloud@thegram-cloud
+```
+
+Then run `/mcp`, select `thegram` and authenticate.
+
+## ChatGPT Business and Enterprise workspaces
+
+An owner or admin can upload the `thegram-cloud-<version>.zip` from the latest [release](https://github.com/clab-one/thegram-plugin/releases) at https://admin.openai.com → **Plugins → Add → Upload plugin**, and update it later with **Upload new version**. ChatGPT marks uploaded plugins that declare an MCP server **Desktop only**.
+
+## Any other MCP client
+
+Streamable HTTP at `https://vault.thegram.one/mcp`; the 401 response names the OAuth metadata (RFC 9728).
 
 Give the agent `skills/thegram-cloud/SKILL.md` as its instructions if the host does not load plugin skills.
 

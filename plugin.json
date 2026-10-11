@@ -19,9 +19,9 @@
   "extensions": {
     "com.openai": {
       "interface": {
-        "displayName": "gram",
+        "displayName": "Thegram",
         "shortDescription": "Long-term memory for agents",
-        "longDescription": "Thegram keeps your projects' long-term memory in .gram documents: decisions, tasks, events and notes with their dates and sources. With gram connected, ChatGPT reads that memory before answering, records new decisions and tasks as they come up, and can save what it gathers from Slack, Gmail, Calendar and other connected apps so later chats start from it. Memory is stored in your Thegram Cloud vault, created on first use, or in a Google Drive you connect at vault.thegram.one. It needs a Thegram account (sign in with Google, Apple or an email code); gram only sees vaults and Drive folders that account can access, and viewers of a shared vault cannot write to it.",
+        "longDescription": "Thegram keeps your projects' long-term memory in .gram documents: decisions, tasks, events and notes with their dates and sources. With Thegram connected, ChatGPT reads that memory before answering, records new decisions and tasks as they come up, and can save what it gathers from Slack, Gmail, Calendar and other connected apps so later chats start from it. Memory is stored in your Thegram Cloud vault, created on first use, or in a Google Drive you connect at vault.thegram.one. It needs a Thegram account (sign in with Google, Apple or an email code); the plugin only sees vaults and Drive folders that account can access, and viewers of a shared vault cannot write to it.",
         "developerName": "Roy Kim",
         "category": "Productivity",
         "capabilities": [
@@ -96,14 +96,14 @@
           ]
         },
         "commerce": false,
-        "commerce_description": "gram does not sell products or process payments."
+        "commerce_description": "Thegram does not sell products or process payments."
       },
       "publication": {
         "release_notes": "First directory release: read, search and record project memory in Thegram Cloud vaults or a connected Google Drive, with the thegram-cloud skill.",
         "translations": {
           "ko-KR": {
             "subtitle": "에이전트의 장기 기억",
-            "description": "Thegram은 프로젝트의 장기 기억을 .gram 문서에 결정, 할 일, 사건, 메모와 그 날짜·출처로 보관합니다. gram을 연결하면 ChatGPT가 답하기 전에 기억을 읽고, 새 결정과 할 일을 그때그때 기록하며, Slack, Gmail, Calendar 등 연결된 앱에서 가져온 내용을 저장해 다음 대화가 그 기억에서 시작하게 합니다. 기억은 처음 사용할 때 만들어지는 Thegram Cloud vault나 vault.thegram.one에서 연결한 Google Drive에 저장됩니다. Thegram 계정(Google, Apple 또는 이메일 코드 로그인)이 필요하며, gram은 그 계정이 접근할 수 있는 vault와 Drive 폴더만 봅니다."
+            "description": "Thegram은 프로젝트의 장기 기억을 .gram 문서에 결정, 할 일, 사건, 메모와 그 날짜·출처로 보관합니다. Thegram을 연결하면 ChatGPT가 답하기 전에 기억을 읽고, 새 결정과 할 일을 그때그때 기록하며, Slack, Gmail, Calendar 등 연결된 앱에서 가져온 내용을 저장해 다음 대화가 그 기억에서 시작하게 합니다. 기억은 처음 사용할 때 만들어지는 Thegram Cloud vault나 vault.thegram.one에서 연결한 Google Drive에 저장됩니다. Thegram 계정(Google, Apple 또는 이메일 코드 로그인)이 필요하며, 플러그인은 그 계정이 접근할 수 있는 vault와 Drive 폴더만 봅니다."
           }
         }
       }
