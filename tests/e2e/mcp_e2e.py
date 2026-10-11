@@ -113,9 +113,10 @@ def main():
     status, _, _ = http("POST", "/mcp", {"jsonrpc": "2.0", "id": 1, "method": "tools/list"}, token="not-a-jwt")
     record("invalid token gets 401", status == 401, status=status)
 
+    _, _, listed = http("GET", "/v1/vaults", token=api_token)
+    before = {v["id"] for v in (listed or {}).get("vaults", [])}
     mount, scratch = MOUNT, None
     if not mount:
-        _, _, listed = http("GET", "/v1/vaults", token=api_token)
         for v in (listed or {}).get("vaults", []):
             if v.get("name", "").startswith(SCRATCH_PREFIX) and v.get("role") == "owner":
                 delete_vault(api_token, v["id"])
@@ -131,6 +132,12 @@ def main():
         if scratch:
             status = delete_vault(api_token, scratch)
             record("scratch vault deleted", status == 204, status=status)
+        # A person without a writable vault gets a "Thegram" vault on the first tool call; remove only one this run caused.
+        _, _, listed = http("GET", "/v1/vaults", token=api_token)
+        for v in (listed or {}).get("vaults", []):
+            if v["id"] not in before and v.get("name") == "Thegram" and v.get("role") == "owner":
+                status = delete_vault(api_token, v["id"])
+                record("default vault made during the run deleted", status == 204, status=status, vault=v["id"])
     finish(evidence, mount)
 
 

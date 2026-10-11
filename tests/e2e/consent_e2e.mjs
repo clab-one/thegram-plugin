@@ -1,5 +1,6 @@
-// Production E2E for a member who has not finished Thegram sign-up: the agent connects to /mcp and gets CONSENT_REQUIRED.
-// It deletes the E2E mailbox account first so Logto creates it fresh, and deletes it again at the end.
+// Production E2E for a brand-new person: before sign-up the agent connects to /mcp and gets CONSENT_REQUIRED; after
+// sign-up it finds a Thegram vault made for it and writes inbox.gram there. It deletes the E2E mailbox account first
+// so Logto creates it fresh, and deletes that account and its Thegram vault again at the end.
 // Usage: NODE_PATH=<dir with puppeteer-core> node tests/e2e/consent_e2e.mjs <evidence-dir>   (env THEGRAM_SERVER, THEGRAM_E2E_MAILBOX, THEGRAM_VAULT_REPO for e2e/imap_code.py)
 import assert from 'node:assert/strict';
 import crypto from 'node:crypto';
@@ -97,8 +98,19 @@ async function deleteAccount(browser, label) {
   const { token, emailCodeUsed } = await signIn(browser, apiResource);
   const auth = { Authorization: `Bearer ${token}` };
   const me = await (await fetch(server + '/v1/me', { headers: auth })).json();
+  // The agent's default vault is owned by this account and would block DELETE /v1/me with 409 owns_vaults.
+  const removedVaults = [];
+  const listed = await fetch(server + '/v1/vaults', { headers: auth });
+  if (listed.status === 200) {
+    for (const v of (await listed.json()).vaults || []) {
+      if (v.name !== 'Thegram' || v.role !== 'owner') continue;
+      const meta = await (await fetch(`${server}/v1/vaults/${v.id}`, { headers: auth })).json();
+      const del = await fetch(`${server}/v1/vaults/${v.id}`, { method: 'DELETE', headers: { ...auth, 'If-Match': meta.policy_etag } });
+      removedVaults.push({ id: v.id, status: del.status });
+    }
+  }
   const del = await fetch(server + '/v1/me', { method: 'DELETE', headers: auth });
-  step(label, { principal: me.principal || me.id, consentRequiredBefore: me.consent_required, emailCodeUsed, deleteStatus: del.status, deleteBody: del.status === 204 ? '' : (await del.text()).slice(0, 200) });
+  step(label, { principal: me.principal || me.id, consentRequiredBefore: me.consent_required, emailCodeUsed, removedVaults, deleteStatus: del.status, deleteBody: del.status === 204 ? '' : (await del.text()).slice(0, 200) });
   assert.equal(del.status, 204, `${label}: DELETE /v1/me ${del.status}`);
 }
 
@@ -131,6 +143,20 @@ try {
   assert.equal(call.data?.result?.isError, true, 'tools/call should fail');
   assert.equal(error?.code, 'CONSENT_REQUIRED');
   assert(error.message.includes(server + '/'), 'message lacks the sign-up URL');
+
+  // Finishing sign-up is all a new person does; the agent then finds a Thegram vault made for it and writes there.
+  const api = await signIn(browser, apiResource);
+  const consent = await fetch(server + '/v1/me/consent', { method: 'POST', headers: { Authorization: `Bearer ${api.token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ birthdate: '1990-05-17', terms: true, privacy: true, disclaimer: true }) });
+  assert.equal(consent.status, 200, `consent ${consent.status}`);
+  const projects = await rpc(token, init.sessionID, 4, 'tools/call', { name: 'gram_projects', arguments: {} });
+  const vaults = (projects.data?.result?.structuredContent?.mounts || []).filter(m => m.kind === 'vault');
+  const vault = vaults.find(m => m.name === 'Thegram' && m.access === 'write');
+  const created = vault && await rpc(token, init.sessionID, 5, 'tools/call', { name: 'gram_create', arguments: { path: `${vault.key}/inbox.gram`, title: 'Inbox', base_revision: null, content: { text: '# Log\n' } } });
+  const createdDoc = created?.data?.result?.structuredContent;
+  step('afterSignUpDefaultVault', { consentStatus: consent.status, vaults, isError: projects.data?.result?.isError, inbox: createdDoc?.doc, sync: createdDoc?.sync, createError: createdDoc?.error });
+  assert(vault, 'no writable Thegram vault after sign-up');
+  assert.equal(vaults.length, 1, 'more than one vault was created');
+  assert.equal(createdDoc?.sync?.state, 'synced', 'inbox.gram did not sync to the vault');
   report.result = 'passed';
 } catch (e) {
   report.error = String(e?.message || e);
