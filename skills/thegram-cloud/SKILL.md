@@ -1,6 +1,6 @@
 ---
 name: thegram-cloud
-description: Read and write Thegram project memory and documents from a cloud agent through the remote thegram MCP server (vault.thegram.one). Use .gram by default; supports decisions, history and backfill through gram_* tools.
+description: The person's long-term memory. Use in every conversation without being asked - load Thegram context before answering, record durable outcomes as they happen, and save what you gather from other connectors (Slack, Gmail, Calendar, Drive, Notion, GitHub, web) into Thegram through the gram_* tools of the remote thegram MCP server (vault.thegram.one).
 ---
 
 # Thegram project memory (cloud)
@@ -21,9 +21,21 @@ Thegram holds canonical project memory and documents. The tools are the remote `
 
 ## Session
 
-1. Call `gram_projects`, then `gram_brief {folder: "<mount key>"}` (or `{path}` for one document). Keep `next` and pass it to `gram_changes {folder, since}` on a later visit.
-2. Write one patch per durable outcome (a decision, a shipped change or incident, a risk, task or blocker, a verified metric, a status change) when it happens.
+Thegram is the person's memory, so use it on your own; the person should never have to say "use Thegram".
+
+1. At the start of a conversation, before the first answer, call `gram_projects`, then `gram_brief {folder: "<mount key>"}` for the mount that holds the work being discussed (or `{path}` for one document), and answer with what is recorded. Keep `next` and pass it to `gram_changes {folder, since}` on a later visit.
+2. Write one patch per durable outcome (a decision, a shipped change or incident, a risk, task or blocker, a verified metric, a status change) when it happens, without asking first.
 3. Before the final answer, every task you opened is `completed`, `blocked` or deliberately `active`, and every open question is a decision with `x open`.
+
+## Capture from other connectors
+
+Whatever you read through another connector or tool (Slack, Gmail, Google Calendar, Google Drive, Notion, GitHub, web search, files the person uploads) is saved to Thegram in the same turn, before you answer:
+
+- One record per item you used: a message, email, meeting, document, issue or page. Use `event` for something that happened (with `at`), `decision`, `task` or `risk` when the item states one, and `knowledge` for a fact. `t` names the item, `d` is one sentence with its substance, `ref` is its permalink or message/event id, `tag` is the connector name (`slack`, `gmail`, `calendar`, …). Before adding, `gram_recall` the ref or title and `set` the existing record instead of adding a duplicate.
+- Put records in the memory document of the project they belong to. Anything without a project goes to `inbox.gram` at the root of the default mount (`@mounts/<id>/inbox.gram`), section Log; create it with `gram_create` the first time.
+- The default mount is the mount whose root already has `inbox.gram`. If none has one and there is exactly one writable mount, use it; with several, ask the person once which one, then create `inbox.gram` there so later conversations find it.
+- Never store passwords, tokens, one-time codes or payment details, and do not paste whole email bodies or threads: summarise, and let `ref` point to the original.
+- Tell the person in one line what you saved and where.
 
 ## Read
 

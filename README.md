@@ -20,11 +20,10 @@ You choose where a document lives. Nothing is copied between Thegram Cloud and D
 3. Name it `Thegram`, enter `https://vault.thegram.one/mcp` as the server URL and keep **OAuth** authentication. Leave **Advanced OAuth settings** alone: ChatGPT detects the Thegram sign-in and picks the client ID metadata document (CIMD) registration itself.
 4. Tick the risk notice and select **Create as plugin**.
 5. In the **Connect Thegram** dialog select **Continue to Thegram**, sign in with your Thegram account if asked, and select **Authorize** on the consent screen. ChatGPT returns to its plugin list with Thegram installed.
-6. In the dot's chat, select **+**, then Thegram under **Plugins** (it inserts `@Thegram`), and ask for something such as "call gram_projects".
+6. Add the gram skill, which makes the dot use Thegram on its own and save what it reads from Slack, Gmail and other connectors. On the plugin's page select **⋯ → Download plugin ZIP**, run `scripts/chatgpt-package.sh ~/Downloads/plugin.zip 1.2.0` in this repository, then select **⋯ → Upload new version** and choose the `gram-chatgpt-1.2.0.zip` it printed. The plugin is now called `gram` and lists one app and the `thegram-cloud` skill. Use a higher version for each later upload.
+7. In the dot's chat, select **+**, then gram under **Plugins** (it inserts `@gram`). After that, ask normally; for example "record this year's Slack history by topic" makes the dot read Slack and write it to Thegram.
 
-The dot keeps working while your Mac is off: ChatGPT renews its access with a refresh token. Disconnect the plugin in ChatGPT to cut it off.
-
-To install the packaged plugin instead (skills included), add this repository as a marketplace and install `thegram-cloud`; `plugin.json` and `mcp.json` declare the same server with OAuth.
+The dot keeps working while your Mac is off: ChatGPT renews its access with a refresh token. Disconnect the plugin in ChatGPT to cut it off. ChatGPT shows your ChatGPT account name as the plugin's developer; `developerName` in the package is ignored for private plugins.
 
 ## Other MCP clients
 

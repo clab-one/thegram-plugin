@@ -1,10 +1,10 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "thegram-cloud",
-  "version": "0.2.0",
-  "description": "Thegram memory for cloud agents such as ChatGPT dots: the desktop app's gram_* tools over https://vault.thegram.one/mcp, signed in with your Thegram account. No Mac or desktop app needs to run.",
+  "version": "0.3.0",
+  "description": "Thegram memory for cloud agents such as ChatGPT dots: the agent loads and records project memory on its own and saves what it reads from Slack, Gmail and other connectors, through https://vault.thegram.one/mcp signed in with your Thegram account. No Mac or desktop app needs to run.",
   "author": {
-    "name": "clab-one"
+    "name": "Roy Kim"
   },
   "license": "UNLICENSED",
   "keywords": [
@@ -16,10 +16,10 @@
   "extensions": {
     "com.openai": {
       "interface": {
-        "displayName": "Thegram",
-        "shortDescription": "Project memory in your Thegram vaults and Google Drive",
-        "longDescription": "Read, search and record decisions, tasks, events and history in .gram documents stored in Thegram Cloud or your Google Drive, the same documents the Thegram app shows.",
-        "developerName": "clab-one",
+        "displayName": "gram",
+        "shortDescription": "Long-term memory in your Thegram vaults and Google Drive",
+        "longDescription": "Thegram is your long-term memory. The agent reads it before answering, records decisions, tasks and events as they happen, and saves what it gathers from Slack, Gmail, Calendar and other connectors into .gram documents in Thegram Cloud or your Google Drive.",
+        "developerName": "Roy Kim",
         "category": "Productivity",
         "capabilities": [
           "Read",
@@ -27,8 +27,8 @@
         ],
         "websiteURL": "https://vault.thegram.one",
         "defaultPrompt": [
-          "Use Thegram to show what changed in my project memory this week.",
-          "Use Thegram to record this decision in my project memory."
+          "What changed in my project memory this week?",
+          "Summarize today's Slack and Gmail and keep what matters."
         ]
       }
     }
