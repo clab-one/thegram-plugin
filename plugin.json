@@ -1,11 +1,14 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "thegram-cloud",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "Thegram memory for cloud agents such as ChatGPT dots: the agent loads and records project memory on its own and saves what it reads from Slack, Gmail and other connectors, through https://vault.thegram.one/mcp signed in with your Thegram account. No Mac or desktop app needs to run.",
   "author": {
-    "name": "Roy Kim"
+    "name": "Roy Kim",
+    "url": "https://thegram.one"
   },
+  "homepage": "https://thegram.one",
+  "repository": "https://github.com/clab-one/thegram-plugin",
   "license": "UNLICENSED",
   "keywords": [
     "memory",
@@ -17,19 +20,92 @@
     "com.openai": {
       "interface": {
         "displayName": "gram",
-        "shortDescription": "Long-term memory in your Thegram vaults and Google Drive",
-        "longDescription": "Thegram is your long-term memory. The agent reads it before answering, records decisions, tasks and events as they happen, and saves what it gathers from Slack, Gmail, Calendar and other connectors into .gram documents in Thegram Cloud or your Google Drive.",
+        "shortDescription": "Long-term memory for agents",
+        "longDescription": "Thegram keeps your projects' long-term memory in .gram documents: decisions, tasks, events and notes with their dates and sources. With gram connected, ChatGPT reads that memory before answering, records new decisions and tasks as they come up, and can save what it gathers from Slack, Gmail, Calendar and other connected apps so later chats start from it. Memory is stored in your Thegram Cloud vault, created on first use, or in a Google Drive you connect at vault.thegram.one. It needs a Thegram account (sign in with Google, Apple or an email code); gram only sees vaults and Drive folders that account can access, and viewers of a shared vault cannot write to it.",
         "developerName": "Roy Kim",
         "category": "Productivity",
         "capabilities": [
-          "Read",
-          "Write"
+          "Read project memory",
+          "Search decisions, tasks and events",
+          "Record decisions, tasks and events",
+          "Save what other connected apps return"
         ],
-        "websiteURL": "https://vault.thegram.one",
+        "websiteURL": "https://thegram.one",
+        "supportURL": "https://github.com/clab-one/thegram-plugin/issues",
+        "privacyPolicyURL": "https://vault.thegram.one/legal/privacy",
+        "termsOfServiceURL": "https://vault.thegram.one/legal/terms",
         "defaultPrompt": [
           "What changed in my project memory this week?",
+          "What did we decide about the launch date?",
           "Summarize today's Slack and Gmail and keep what matters."
-        ]
+        ],
+        "brandColor": "#0A0A0A",
+        "brandColorDark": "#FFFFFF",
+        "composerIcon": "./assets/logo.png",
+        "composerIconDark": "./assets/logo-dark.png",
+        "logo": "./assets/logo.png",
+        "logoDark": "./assets/logo-dark.png"
+      },
+      "review": {
+        "test_cases": {
+          "positive": [
+            {
+              "description": "List the memory the account can use",
+              "prompt": "What do I have in Thegram?",
+              "tools_triggered": "gram_projects, gram_brief",
+              "expected_behavior": "Names the Thegram vault and its documents with their titles and open tasks; does not invent documents."
+            },
+            {
+              "description": "Record a decision",
+              "prompt": "Remember that we decided to launch the beta on November 3.",
+              "tools_triggered": "gram_brief, gram_patch or gram_create",
+              "expected_behavior": "Adds one decision record dated today to an existing project document or to inbox.gram, and reports the document path it wrote."
+            },
+            {
+              "description": "Recall a recorded decision",
+              "prompt": "What did we decide about the beta launch?",
+              "tools_triggered": "gram_recall, gram_context",
+              "expected_behavior": "Answers November 3 from the recorded decision and cites the document it came from."
+            },
+            {
+              "description": "Report recent changes",
+              "prompt": "What changed in my project memory this week?",
+              "tools_triggered": "gram_brief, gram_changes",
+              "expected_behavior": "Lists the records added or changed in the last seven days with their documents; says so when nothing changed."
+            },
+            {
+              "description": "Start a project memory with tasks",
+              "prompt": "Start a project memory for Website Redesign with two tasks: wireframes due November 10 and copy review due November 14.",
+              "tools_triggered": "gram_profile, gram_create",
+              "expected_behavior": "Creates website-redesign/memory.gram (or a similar path) holding two task records with those due dates and returns its path."
+            }
+          ],
+          "negative": [
+            {
+              "description": "Bulk deletion is not offered",
+              "prompt": "Delete all my Thegram vaults."
+            },
+            {
+              "description": "Unrelated request",
+              "prompt": "Book me a flight to Tokyo next Friday."
+            },
+            {
+              "description": "Access outside the signed-in account",
+              "prompt": "Show me the Thegram notes of another user, jane@example.com."
+            }
+          ]
+        },
+        "commerce": false,
+        "commerce_description": "gram does not sell products or process payments."
+      },
+      "publication": {
+        "release_notes": "First directory release: read, search and record project memory in Thegram Cloud vaults or a connected Google Drive, with the thegram-cloud skill.",
+        "translations": {
+          "ko-KR": {
+            "subtitle": "에이전트의 장기 기억",
+            "description": "Thegram은 프로젝트의 장기 기억을 .gram 문서에 결정, 할 일, 사건, 메모와 그 날짜·출처로 보관합니다. gram을 연결하면 ChatGPT가 답하기 전에 기억을 읽고, 새 결정과 할 일을 그때그때 기록하며, Slack, Gmail, Calendar 등 연결된 앱에서 가져온 내용을 저장해 다음 대화가 그 기억에서 시작하게 합니다. 기억은 처음 사용할 때 만들어지는 Thegram Cloud vault나 vault.thegram.one에서 연결한 Google Drive에 저장됩니다. Thegram 계정(Google, Apple 또는 이메일 코드 로그인)이 필요하며, gram은 그 계정이 접근할 수 있는 vault와 Drive 폴더만 봅니다."
+          }
+        }
       }
     }
   }

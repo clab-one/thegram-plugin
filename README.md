@@ -43,6 +43,10 @@ Ask the agent to call `gram_projects`. It lists your vaults and Drive accounts a
 
 `tests/e2e/mcp_e2e.py` runs the agent path end to end against a server (OAuth discovery, initialize, tools/list, create, patch, replay, stale write, brief, read, recall, state, account isolation) and writes `mcp-e2e-report.json`; see the script header for its environment variables.
 
+## Release
+
+The ZIP attached to each GitHub release is the package for the ChatGPT and Codex plugin directory: `zip -r thegram-cloud-<version>.zip plugin.json mcp.json skills assets`. `plugin.json` carries the listing, icons, review test cases and release notes the directory imports; the demo video URL and reviewer credentials are entered in the developer dashboard. `scripts/chatgpt-package.sh` is only for updating a private plugin made with **Create custom MCP server**.
+
 ## Limits
 
 - Semantic search is not available on the server yet; `gram_recall` in `auto` mode uses keyword matching and says so.
