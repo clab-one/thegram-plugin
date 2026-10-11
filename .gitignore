@@ -4,3 +4,6 @@
 # Live E2E reports name real accounts, vaults and Drive files; they stay on the machine that ran them.
 evidence/
 __pycache__/
+dist/
+# Private downloaded/overlaid plugin archives may contain app bindings or tokens.
+*.zip

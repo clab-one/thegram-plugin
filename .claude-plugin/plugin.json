@@ -1,7 +1,7 @@
 {
   "name": "thegram-cloud",
-  "version": "1.4.0",
-  "description": "Thegram memory for cloud agents such as ChatGPT dots: the agent loads and records project memory on its own and saves what it reads from Slack, Gmail and other connectors, through https://vault.thegram.one/mcp signed in with your Thegram account. No Mac or desktop app needs to run.",
+  "version": "1.5.0",
+  "description": "Durable project memory for dot and other cloud agents: retrieve current context and maintain readable, source-grounded .gram knowledge within authorized scope through https://vault.thegram.one/mcp. No running Mac is required.",
   "author": {
     "name": "Roy Kim"
   },

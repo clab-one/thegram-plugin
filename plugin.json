@@ -1,8 +1,8 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "thegram-cloud",
-  "version": "1.4.0",
-  "description": "Thegram memory for cloud agents such as ChatGPT dots: the agent loads and records project memory on its own and saves what it reads from Slack, Gmail and other connectors, through https://vault.thegram.one/mcp signed in with your Thegram account. No Mac or desktop app needs to run.",
+  "version": "1.5.0",
+  "description": "Durable project memory for dot and other cloud agents: retrieve current context and maintain readable, source-grounded .gram knowledge within authorized scope through https://vault.thegram.one/mcp. No running Mac is required.",
   "author": {
     "name": "Roy Kim",
     "url": "https://thegram.one"
@@ -21,14 +21,14 @@
       "interface": {
         "displayName": "Thegram",
         "shortDescription": "Long-term memory for agents",
-        "longDescription": "Thegram keeps your projects' long-term memory in .gram documents: decisions, tasks, events and notes with their dates and sources. With Thegram connected, ChatGPT reads that memory before answering, records new decisions and tasks as they come up, and can save what it gathers from Slack, Gmail, Calendar and other connected apps so later chats start from it. Memory is stored in your Thegram Cloud vault, created on first use, or in a Google Drive you connect at vault.thegram.one. It needs a Thegram account (sign in with Google, Apple or an email code); the plugin only sees vaults and Drive folders that account can access, and viewers of a shared vault cannot write to it.",
+        "longDescription": "Thegram keeps project knowledge in .gram documents: purpose, current state, decision reasons, evolution, tasks, risks and verified outcomes with evidence and meaningful relations. The bundled English thegram-cloud skill guides dot and other agents to discover authorized mounts, retrieve relevant context before project work, and maintain durable outcomes within the requested purpose and destination. Retrieval, analysis and drafts remain read-only unless persistence is authorized. It uses Thegram Cloud vaults or Google Drive connected at vault.thegram.one; local-only Mac files are not visible. Sign in with your Thegram account. Shared-vault viewers cannot write.",
         "developerName": "Roy Kim",
         "category": "Productivity",
         "capabilities": [
           "Read project memory",
-          "Search decisions, tasks and events",
-          "Record decisions, tasks and events",
-          "Save what other connected apps return"
+          "Search decisions, tasks and evidence",
+          "Maintain authorized project knowledge",
+          "Track sourced outcomes and relations"
         ],
         "websiteURL": "https://thegram.one",
         "supportURL": "https://github.com/clab-one/thegram-plugin/issues",
@@ -58,14 +58,14 @@
             {
               "description": "Record a decision",
               "prompt": "Remember that we decided to launch the beta on November 3.",
-              "tools_triggered": "gram_brief, gram_patch or gram_create",
-              "expected_behavior": "Adds one decision record dated today to an existing project document or to inbox.gram, and reports the document path it wrote."
+              "tools_triggered": "gram_projects, gram_brief, gram_profile, gram_patch or gram_create",
+              "expected_behavior": "Reuses the authorized project document or creates a top-level vault .gram only after confirming the destination; records an accepted choice with a source-grounded description, does not invent an implementation date, and verifies sync plus fresh readback."
             },
             {
               "description": "Recall a recorded decision",
               "prompt": "What did we decide about the beta launch?",
               "tools_triggered": "gram_recall, gram_context",
-              "expected_behavior": "Answers November 3 from the recorded decision and cites the document it came from."
+              "expected_behavior": "Answers from the recorded choice and evidence, distinguishes adoption from implementation, cites the memory document and makes no write for this retrieval request."
             },
             {
               "description": "Report recent changes",
@@ -76,8 +76,14 @@
             {
               "description": "Start a project memory with tasks",
               "prompt": "Start a project memory for Website Redesign with two tasks: wireframes due November 10 and copy review due November 14.",
-              "tools_triggered": "gram_profile, gram_create",
-              "expected_behavior": "Creates website-redesign/memory.gram (or a similar path) holding two task records with those due dates and returns its path."
+              "tools_triggered": "gram_projects, gram_brief, gram_profile, gram_create",
+              "expected_behavior": "Creates a top-level website-redesign.gram in the authorized writable cloud vault (or requested Drive path), with readable purpose/current-state prose, two sourced task due dates and explicit goal/project links; verifies synchronization and readback."
+            },
+            {
+              "description": "Preserve concurrent project edits",
+              "prompt": "Update the authorized project memory with the verified rollout result, preserving the caveat another editor just added.",
+              "tools_triggered": "gram_brief, gram_read, gram_context, gram_patch",
+              "expected_behavior": "Uses fresh revision/hash and stable request ID; stale or storage conflict triggers reread and merge with a new ID, while an uncertain reply only replays an identical request. Confirms actual prose, fields and relations by readback."
             }
           ],
           "negative": [
@@ -99,11 +105,11 @@
         "commerce_description": "Thegram does not sell products or process payments."
       },
       "publication": {
-        "release_notes": "First directory release: read, search and record project memory in Thegram Cloud vaults or a connected Google Drive, with the thegram-cloud skill.",
+        "release_notes": "1.5.0 bundles the English durable-project-memory lifecycle, source-grounded examples and verified cloud/local limits. Package builders preserve private app identity/settings and validate skill discovery; read-only requests remain read-only.",
         "translations": {
           "ko-KR": {
             "subtitle": "에이전트의 장기 기억",
-            "description": "Thegram은 프로젝트의 장기 기억을 .gram 문서에 결정, 할 일, 사건, 메모와 그 날짜·출처로 보관합니다. Thegram을 연결하면 ChatGPT가 답하기 전에 기억을 읽고, 새 결정과 할 일을 그때그때 기록하며, Slack, Gmail, Calendar 등 연결된 앱에서 가져온 내용을 저장해 다음 대화가 그 기억에서 시작하게 합니다. 기억은 처음 사용할 때 만들어지는 Thegram Cloud vault나 vault.thegram.one에서 연결한 Google Drive에 저장됩니다. Thegram 계정(Google, Apple 또는 이메일 코드 로그인)이 필요하며, 플러그인은 그 계정이 접근할 수 있는 vault와 Drive 폴더만 봅니다."
+            "description": "Thegram은 프로젝트의 목적, 현재 상태, 결정의 이유, 변화 과정, 작업과 위험을 근거 및 관계와 함께 .gram 문서로 보관합니다. 포함된 영어 thegram-cloud 스킬은 dot과 에이전트가 허가된 저장 위치와 문맥을 확인하고, 필요한 기억을 조회하며, 승인된 범위에서 검증된 결과를 유지하도록 안내합니다. 조회·분석·초안은 저장 승인이 없으면 읽기 전용입니다. Thegram Cloud vault 또는 vault.thegram.one에서 연결한 Google Drive를 사용하며, Mac이 켜져 있을 필요는 없습니다."
           }
         }
       }

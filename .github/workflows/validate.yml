@@ -1,0 +1,32 @@
+name: Validate cloud plugin
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Test package discovery and preservation
+        run: python3 -m unittest discover -s tests -p 'test_*.py' -v
+      - name: Check shell syntax
+        run: sh -n scripts/chatgpt-package.sh tests/offline/run.sh
+      - name: Build and validate portable release
+        run: |
+          version=$(python3 -c 'import json; print(json.load(open("plugin.json"))["version"])')
+          python3 scripts/package_plugin.py build --output "$RUNNER_TEMP/thegram-cloud-$version.zip"
+          python3 scripts/package_plugin.py validate "$RUNNER_TEMP/thegram-cloud-$version.zip" --expected-version "$version"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: thegram-cloud-package
+          path: ${{ runner.temp }}/thegram-cloud-*.zip
+          if-no-files-found: error
