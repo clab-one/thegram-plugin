@@ -28,28 +28,6 @@ Sign in once at https://vault.thegram.one. The first sign-in creates your Thegra
 
 ChatGPT keeps access while your Mac is off by renewing it with a refresh token; disconnect the plugin in ChatGPT to cut it off. ChatGPT shows your own account name as the developer of a plugin you create this way.
 
-## ChatGPT desktop (Work, Codex) and Codex CLI
-
-```sh
-codex plugin marketplace add clab-one/thegram-plugin
-codex plugin add thegram-cloud@thegram
-```
-
-Or, after the first command, restart the ChatGPT desktop app and install Thegram from the **Thegram** marketplace under **Plugins**. It brings the MCP server and the `thegram-cloud` skill; sign in when it first connects. ChatGPT marks such plugins **Desktop only**: use the steps above for ChatGPT on the web and mobile.
-
-## Claude Code
-
-```sh
-claude plugin marketplace add clab-one/thegram-plugin
-claude plugin install thegram-cloud@thegram-cloud
-```
-
-Then run `/mcp`, select `thegram` and authenticate.
-
-## ChatGPT Business and Enterprise workspaces
-
-An owner or admin can upload the `thegram-cloud-<version>.zip` from the latest [release](https://github.com/clab-one/thegram-plugin/releases) at https://admin.openai.com → **Plugins → Add → Upload plugin**, and update it later with **Upload new version**. ChatGPT marks uploaded plugins that declare an MCP server **Desktop only**.
-
 ## Any other MCP client
 
 Streamable HTTP at `https://vault.thegram.one/mcp`; the 401 response names the OAuth metadata (RFC 9728).

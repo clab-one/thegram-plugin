@@ -3,24 +3,7 @@
   "mcpServers": {
     "thegram": {
       "type": "streamable-http",
-      "url": "https://vault.thegram.one/mcp",
-      "extensions": {
-        "com.openai": {
-          "auth": {
-            "type": "oauth",
-            "client": {
-              "mode": "cimd"
-            },
-            "baseScopes": [
-              "openid",
-              "profile",
-              "email",
-              "offline_access"
-            ],
-            "defaultScopes": []
-          }
-        }
-      }
+      "url": "https://vault.thegram.one/mcp"
     }
   }
 }
