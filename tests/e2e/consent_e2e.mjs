@@ -123,7 +123,10 @@ try {
   const list = await rpc(token, init.sessionID, 2, 'tools/list', {});
   const call = await rpc(token, init.sessionID, 3, 'tools/call', { name: 'gram_projects', arguments: {} });
   const error = call.data?.result?.structuredContent?.error;
-  step('freshAccountOverMCP', { emailCodeUsed, initializeStatus: init.status, server: init.data?.result?.serverInfo, toolsListStatus: list.status, tools: list.data?.result?.tools?.length, callStatus: call.status, isError: call.data?.result?.isError, error });
+  const instructions = init.data?.result?.instructions || '';
+  const agentInstructions = instructions.includes('use it without being asked') && instructions.includes('summarise instead of pasting whole messages');
+  step('freshAccountOverMCP', { emailCodeUsed, initializeStatus: init.status, server: init.data?.result?.serverInfo, agentInstructions, toolsListStatus: list.status, tools: list.data?.result?.tools?.length, callStatus: call.status, isError: call.data?.result?.isError, error });
+  assert(agentInstructions, 'initialize instructions lack the agent memory rules');
   assert.equal(list.status, 200, 'tools/list');
   assert.equal(call.data?.result?.isError, true, 'tools/call should fail');
   assert.equal(error?.code, 'CONSENT_REQUIRED');
