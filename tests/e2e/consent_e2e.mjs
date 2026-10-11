@@ -140,6 +140,13 @@ try {
   step('freshAccountOverMCP', { emailCodeUsed, initializeStatus: init.status, server: init.data?.result?.serverInfo, agentInstructions, toolsListStatus: list.status, tools: list.data?.result?.tools?.length, callStatus: call.status, isError: call.data?.result?.isError, error });
   assert(agentInstructions, 'initialize instructions lack the agent memory rules');
   assert.equal(list.status, 200, 'tools/list');
+  const hints = Object.fromEntries((list.data?.result?.tools || []).map(t => [t.name, t.annotations]));
+  step('toolAnnotations', { hints });
+  for (const [name, a] of Object.entries(hints)) {
+    const writes = name === 'gram_create' || name === 'gram_patch';
+    assert.deepEqual(a, { readOnlyHint: !writes, destructiveHint: name === 'gram_patch', openWorldHint: false }, `${name} annotations`);
+  }
+  assert.equal(Object.keys(hints).length, 15, 'tool count');
   assert.equal(call.data?.result?.isError, true, 'tools/call should fail');
   assert.equal(error?.code, 'CONSENT_REQUIRED');
   assert(error.message.includes(server + '/'), 'message lacks the sign-up URL');
