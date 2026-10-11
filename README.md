@@ -11,11 +11,11 @@ New to Thegram? The step-by-step guide at https://thegram.one/install/#chatgpt c
 | Each Thegram Cloud vault you can access | `@mounts/<vault id>/<name>.gram` | Thegram Cloud |
 | Each Google Drive account connected at vault.thegram.one | `@mounts/google-drive-<account>/<folders>/<name>.gram` | your Google Drive |
 
-You choose where a document lives. Nothing is copied between Thegram Cloud and Drive; the desktop app shows the same files when you mount the same vaults or Drive accounts there. Documents that exist only in a local folder on your Mac are not visible to cloud agents.
+Agents write to your Thegram Cloud vault by default and to Google Drive only when you ask. Nothing is copied between Thegram Cloud and Drive; the desktop app shows the same files when you mount the same vaults or Drive accounts there. Documents that exist only in a local folder on your Mac are not visible to cloud agents.
 
 ## Connect a ChatGPT dot
 
-1. Sign in at https://vault.thegram.one. The first sign-in creates your Thegram account; finish signing up (date of birth, terms). Then, under **Settings → Connections**, create a vault with **New Vault** or connect Google Drive with **Add account**, so the agent has somewhere to keep documents.
+1. Sign in at https://vault.thegram.one. The first sign-in creates your Thegram account; finish signing up (date of birth, terms). Agents keep memory in your Thegram Cloud vault; if you have none, Thegram creates one named `Thegram` the first time an agent connects. To let agents write to Google Drive when you ask for it, connect it under **Settings → Connections → Add account**.
 2. Open https://chatgpt.com/plugins (in the ChatGPT Mac app: **Settings → Plugins → Browse directory**), select **Add**, then **Create custom MCP server**.
 3. Name it `Thegram`, enter `https://vault.thegram.one/mcp` as the server URL and keep **OAuth** authentication. Leave **Advanced OAuth settings** alone: ChatGPT detects the Thegram sign-in and picks the client ID metadata document (CIMD) registration itself.
 4. Tick the risk notice and select **Create as plugin**.

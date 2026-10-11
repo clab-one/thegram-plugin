@@ -10,13 +10,13 @@ Thegram holds canonical project memory and documents. The tools are the remote `
 ## Where files live
 
 - `gram_projects` lists the person's mounts as `{key, id, kind, name, count, access}`: each Thegram Cloud vault (`kind: vault`, `name` = vault name) and each connected Google Drive account (`kind: drive`, `name` = `Google Drive (<email>)`). Every path starts with the mount `key`, never the display name: `@mounts/<id>/memory.gram`, `@mounts/google-drive-<account>/proj/notes.gram`.
-- The person decides where a document lives. Ask which mount to use when it is not obvious; never copy a document to another mount on your own.
+- Store in the person's Thegram Cloud vault: the writable mount with `kind: vault`. If they have none, Thegram creates one named `Thegram` the first time an agent connects, so `gram_projects` always lists it; never ask the person to create a vault. Write to a Google Drive mount only when the person asks for Drive, and never copy a document to another mount on your own.
 - A vault mount accepts writes only for top-level documents (`@mounts/<id>/<name>.gram`, name from letters, digits, `-`, `_`); a Drive mount may use folders.
 - A mount with `access: read` cannot be written. A write result's `sync.state` must be `synced` before you report the change as saved.
 
 ## Documents
 
-- Keep one memory document per project, e.g. `@mounts/<id>/memory.gram`, with Overview, Architecture, Plan, Decisions and Log. Choose other filenames freely; reuse existing documents.
+- Keep one memory document per project at the vault root, `@mounts/<vault id>/<project>.gram`, with Overview, Architecture, Plan, Decisions and Log. Choose other filenames freely; reuse existing documents.
 - Author project documents as `.gram`. Documents support ordinary prose, tables and code. The durable-outcome filter applies only to memory records. Read `gram_profile {task: "create"}` or `{task: "rich"}` for authoring; use the rev/hash write protocol below.
 
 ## Session
@@ -32,8 +32,8 @@ Thegram is the person's memory, so use it on your own; the person should never h
 Whatever you read through another connector or tool (Slack, Gmail, Google Calendar, Google Drive, Notion, GitHub, web search, files the person uploads) is saved to Thegram in the same turn, before you answer:
 
 - One record per item you used: a message, email, meeting, document, issue or page. Use `event` for something that happened (with `at`), `decision`, `task` or `risk` when the item states one, and `knowledge` for a fact. `t` names the item, `d` is one sentence with its substance, `ref` is its permalink or message/event id, `tag` is the connector name (`slack`, `gmail`, `calendar`, …). Before adding, `gram_recall` the ref or title and `set` the existing record instead of adding a duplicate.
-- Put records in the memory document of the project they belong to. Anything without a project goes to `inbox.gram` at the root of the default mount (`@mounts/<id>/inbox.gram`), section Log; create it with `gram_create` the first time.
-- The default mount is the mount whose root already has `inbox.gram`. If none has one and there is exactly one writable mount, use it; with several, ask the person once which one, then create `inbox.gram` there so later conversations find it.
+- Put records in the memory document of the project they belong to. Anything without a project goes to `inbox.gram` at the vault root (`@mounts/<vault id>/inbox.gram`), section Log; create it with `gram_create` the first time.
+- When the person asks for Drive, use their Drive mount for that request only; the vault stays the default.
 - Never store passwords, tokens, one-time codes or payment details, and do not paste whole email bodies or threads: summarise, and let `ref` point to the original.
 - Tell the person in one line what you saved and where.
 
