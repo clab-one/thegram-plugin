@@ -57,18 +57,19 @@ class Session:
         self.server, self.store, self.client_id = server, store, client_id
         self.found = discover(server)
         self.meta = self.found["metadata"]
-        self.refresh = None
+        # Logto binds a refresh token to the resource of its authorization request, so each resource keeps its own.
+        self.refresh = {}
         if os.path.exists(store):
             with open(store) as f:
-                self.refresh = json.load(f).get("refresh_token")
+                self.refresh = json.load(f).get("refresh_tokens", {})
 
-    def _save(self, tokens):
+    def _save(self, resource, tokens):
         if tokens.get("refresh_token"):
-            self.refresh = tokens["refresh_token"]
+            self.refresh[resource] = tokens["refresh_token"]
             os.makedirs(os.path.dirname(self.store), exist_ok=True)
             fd = os.open(self.store, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
             with os.fdopen(fd, "w") as f:
-                json.dump({"refresh_token": self.refresh}, f)
+                json.dump({"refresh_tokens": self.refresh}, f)
 
     def _token(self, fields):
         status, _, body = fetch(self.meta["token_endpoint"], urllib.parse.urlencode(fields).encode(),
@@ -76,7 +77,7 @@ class Session:
         if status != 200:
             raise RuntimeError(f"token endpoint {status}: {body[:300]!r}")
         tokens = json.loads(body)
-        self._save(tokens)
+        self._save(fields["resource"], tokens)
         return tokens
 
     def login(self, resource):
@@ -115,10 +116,10 @@ class Session:
                             "redirect_uri": redirect, "code_verifier": verifier, "resource": resource})
 
     def access_token(self, resource):
-        if self.refresh:
+        if resource in self.refresh:
             try:
                 return self._token({"grant_type": "refresh_token", "client_id": self.client_id,
-                                    "refresh_token": self.refresh, "resource": resource})["access_token"]
+                                    "refresh_token": self.refresh[resource], "resource": resource})["access_token"]
             except RuntimeError:
-                self.refresh = None
+                del self.refresh[resource]
         return self.login(resource)["access_token"]

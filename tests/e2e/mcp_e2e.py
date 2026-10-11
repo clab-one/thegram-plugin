@@ -2,15 +2,15 @@
 """End-to-end check of the remote Thegram MCP endpoint as a cloud agent uses it.
 
 Usage:
-  THEGRAM_SERVER=https://vault.thegram.one THEGRAM_VAULT=<vault id> \
+  THEGRAM_SERVER=https://vault.thegram.one THEGRAM_MOUNT=<vault id | google-drive-<account>> \
   [THEGRAM_OAUTH_CLIENT_ID=<Logto app with a loopback redirect; default: the server's desktop client>] \
   [THEGRAM_OAUTH_STORE=<refresh token file; default ~/.config/thegram-e2e/<host>.json>] \
-  [THEGRAM_OTHER_TOKEN=<MCP access token of a second account without access to the vault>] \
+  [THEGRAM_OTHER_TOKEN=<MCP access token of a second account without access to the mount>] \
   python3 tests/e2e/mcp_e2e.py <evidence-dir>
 
 Discovers OAuth from the endpoint's 401 like an MCP client, signs in once in a browser (later runs refresh),
-creates one scratch document in the vault, exercises the tools on it, deletes it through the vault API,
-and writes <evidence-dir>/mcp-e2e-report.json. Exits non-zero when any step fails.
+creates one scratch document in the mount, exercises the tools on it, checks the stored file through the
+vault or Drive API, deletes it there, and writes <evidence-dir>/mcp-e2e-report.json. Exits non-zero when any step fails.
 """
 import json
 import os
@@ -24,10 +24,11 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import oauth  # noqa: E402
 
 SERVER = os.environ["THEGRAM_SERVER"].rstrip("/")
-VAULT = os.environ["THEGRAM_VAULT"]
+MOUNT = os.environ["THEGRAM_MOUNT"]
+DRIVE = MOUNT.removeprefix("google-drive-") if MOUNT.startswith("google-drive-") else None
 OTHER = os.environ.get("THEGRAM_OTHER_TOKEN")
 DOC = "mcp-e2e-" + time.strftime("%Y%m%d%H%M%S")
-PATH = f"@mounts/{VAULT}/{DOC}.gram"
+PATH = f"@mounts/{MOUNT}/{DOC}.gram"
 steps = []
 
 
@@ -120,7 +121,7 @@ def main():
 
     failed, projects = agent.tool("gram_projects", {})
     mounts = {m["id"]: m for m in (projects or {}).get("mounts", [])}
-    record("gram_projects lists the vault as a writable mount", not failed and mounts.get(VAULT, {}).get("access") == "write", mounts=list(mounts))
+    record("gram_projects lists the mount as writable", not failed and mounts.get(MOUNT, {}).get("access") == "write", mounts=list(mounts))
 
     failed, created = agent.tool("gram_create", {"path": PATH, "base_revision": None, "title": "MCP E2E", "content": {
         "text": "# Overview\n\n[[prj-e2e]]\n\n# Decisions\n\n# Log\n",
@@ -144,13 +145,18 @@ def main():
     record("gram_brief sees revision 1", not failed and (brief or {}).get("docs", [[None, None, None]])[0][2] == 1)
     failed, read = agent.tool("gram_read", {"path": PATH, "section": "Decisions"})
     record("gram_read renders the decision", not failed and "dec-e2e" in (read or {}).get("md", ""))
-    failed, recall = agent.tool("gram_recall", {"query": "remote MCP", "folder": f"@mounts/{VAULT}"})
+    failed, recall = agent.tool("gram_recall", {"query": "remote MCP", "folder": f"@mounts/{MOUNT}"})
     record("gram_recall finds the decision", not failed and any("#dec-e2e" in str(hit[0]) for hit in (recall or {}).get("hits", [])), result=recall)
     failed, state = agent.tool("gram_state", {"path": PATH, "selector": {"revision": 0}})
     record("gram_state reads revision 0", not failed)
 
-    status, _, body = http("GET", f"/v1/vaults/{VAULT}/files/{DOC}/history", token=api_token)
-    record("vault history holds both revisions", status == 200 and len((body or {}).get("history", [])) == 2, status=status)
+    if DRIVE:
+        status, _, tree = http("GET", f"/v1/drive/accounts/{DRIVE}/items", token=api_token)
+        item = next((i for i in (tree or {}).get("items", []) if i.get("name") == DOC + ".gram"), None)
+        record("Drive holds the document", status == 200 and item is not None, status=status, item=item)
+    else:
+        status, _, body = http("GET", f"/v1/vaults/{MOUNT}/files/{DOC}/history", token=api_token)
+        record("vault history holds both revisions", status == 200 and len((body or {}).get("history", [])) == 2, status=status)
 
     if OTHER:
         other = Client(OTHER)
@@ -158,12 +164,19 @@ def main():
         failed, denied = other.tool("gram_read", {"path": PATH})
         record("another account cannot read the document", failed and error_code(denied) in ("E_PATH", "E_FORBIDDEN"), result=denied)
 
-    status, headers, _ = http("GET", f"/v1/vaults/{VAULT}/files/{DOC}", token=api_token)
-    etag = headers.get("ETag") or headers.get("Etag")
-    status, _, _ = http("DELETE", f"/v1/vaults/{VAULT}/files/{DOC}", token=api_token, headers={"If-Match": etag})
+    if DRIVE:
+        status = None
+        if item:
+            status, _, _ = http("DELETE", f"/v1/drive/accounts/{DRIVE}/items/{item['id']}", token=api_token,
+                                headers={"If-Match": '"' + str(item.get("head_revision_id")) + '"'})
+    else:
+        status, headers, _ = http("GET", f"/v1/vaults/{MOUNT}/files/{DOC}", token=api_token)
+        etag = headers.get("ETag") or headers.get("Etag")
+        if etag:
+            status, _, _ = http("DELETE", f"/v1/vaults/{MOUNT}/files/{DOC}", token=api_token, headers={"If-Match": etag})
     record("scratch document deleted", status in (200, 204), status=status)
 
-    report = {"server": SERVER, "vault": VAULT, "document": DOC, "at": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
+    report = {"server": SERVER, "mount": MOUNT, "document": DOC, "at": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
               "passed": sum(s["ok"] for s in steps), "total": len(steps), "steps": steps}
     with open(os.path.join(evidence, "mcp-e2e-report.json"), "w") as f:
         json.dump(report, f, indent=2, ensure_ascii=False)
