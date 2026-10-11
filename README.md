@@ -16,11 +16,11 @@ You choose where a document lives. Nothing is copied between Thegram Cloud and D
 ## Connect a ChatGPT dot
 
 1. Sign in at https://vault.thegram.one. The first sign-in creates your Thegram account; finish signing up (date of birth, terms). Then, under **Settings → Connections**, create a vault with **New Vault** or connect Google Drive with **Add account**, so the agent has somewhere to keep documents.
-2. Open https://chatgpt.com/plugins, select **+**, then **Add custom MCP server**.
-3. Name it `Thegram`, enter `https://vault.thegram.one/mcp` as the URL, and choose **OAuth** authentication. ChatGPT finds the Thegram sign-in on its own; leave the client fields empty.
-4. Accept the risk notice, select **Create as a plugin**, then **Install**.
-5. Sign in with your Thegram account and approve the consent screen.
-6. In the dot, open **Customize → Plugins** and enable Thegram, or mention `@Thegram` in a chat.
+2. Open https://chatgpt.com/plugins (in the ChatGPT Mac app: **Settings → Plugins → Browse directory**), select **Add**, then **Create custom MCP server**.
+3. Name it `Thegram`, enter `https://vault.thegram.one/mcp` as the server URL and keep **OAuth** authentication. Leave **Advanced OAuth settings** alone: ChatGPT detects the Thegram sign-in and picks the client ID metadata document (CIMD) registration itself.
+4. Tick the risk notice and select **Create as plugin**.
+5. In the **Connect Thegram** dialog select **Continue to Thegram**, sign in with your Thegram account if asked, and select **Authorize** on the consent screen. ChatGPT returns to its plugin list with Thegram installed.
+6. In the dot's chat, select **+**, then Thegram under **Plugins** (it inserts `@Thegram`), and ask for something such as "call gram_projects".
 
 The dot keeps working while your Mac is off: ChatGPT renews its access with a refresh token. Disconnect the plugin in ChatGPT to cut it off.
 
