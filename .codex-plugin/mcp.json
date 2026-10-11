@@ -1,8 +1,0 @@
-{
-	"mcpServers": {
-		"thegram": {
-			"url": "https://vault.thegram.one/mcp",
-			"bearer_token_env_var": "THEGRAM_TOKEN"
-		}
-	}
-}

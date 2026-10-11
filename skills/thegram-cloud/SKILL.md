@@ -5,7 +5,7 @@ description: Read and write Thegram project memory and documents from a cloud ag
 
 # Thegram project memory (cloud)
 
-Thegram holds canonical project memory and documents. The tools are the remote `thegram` MCP server's `gram_<name>` tools, served by https://vault.thegram.one/mcp with the person's Thegram token. They behave like the desktop app's local tools; no Mac needs to be running.
+Thegram holds canonical project memory and documents. The tools are the remote `thegram` MCP server's `gram_<name>` tools, served by https://vault.thegram.one/mcp under the person's Thegram account (OAuth sign-in on connect). They behave like the desktop app's local tools; no Mac needs to be running.
 
 ## Where files live
 

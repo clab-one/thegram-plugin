@@ -2,11 +2,14 @@
 """End-to-end check of the remote Thegram MCP endpoint as a cloud agent uses it.
 
 Usage:
-  THEGRAM_SERVER=https://vault.thegram.one THEGRAM_TOKEN=gvt_... THEGRAM_VAULT=<vault id> \
-  [THEGRAM_OTHER_TOKEN=gvt_... (a second account without access to the vault)] \
+  THEGRAM_SERVER=https://vault.thegram.one THEGRAM_VAULT=<vault id> \
+  [THEGRAM_OAUTH_CLIENT_ID=<Logto app with a loopback redirect; default: the server's desktop client>] \
+  [THEGRAM_OAUTH_STORE=<refresh token file; default ~/.config/thegram-e2e/<host>.json>] \
+  [THEGRAM_OTHER_TOKEN=<MCP access token of a second account without access to the vault>] \
   python3 tests/e2e/mcp_e2e.py <evidence-dir>
 
-Creates one scratch document in the vault, exercises the tools on it, deletes it through the vault API,
+Discovers OAuth from the endpoint's 401 like an MCP client, signs in once in a browser (later runs refresh),
+creates one scratch document in the vault, exercises the tools on it, deletes it through the vault API,
 and writes <evidence-dir>/mcp-e2e-report.json. Exits non-zero when any step fails.
 """
 import json
@@ -14,10 +17,13 @@ import os
 import sys
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import oauth  # noqa: E402
+
 SERVER = os.environ["THEGRAM_SERVER"].rstrip("/")
-TOKEN = os.environ["THEGRAM_TOKEN"]
 VAULT = os.environ["THEGRAM_VAULT"]
 OTHER = os.environ.get("THEGRAM_OTHER_TOKEN")
 DOC = "mcp-e2e-" + time.strftime("%Y%m%d%H%M%S")
@@ -25,7 +31,7 @@ PATH = f"@mounts/{VAULT}/{DOC}.gram"
 steps = []
 
 
-def http(method, path, body=None, token=TOKEN, headers=None):
+def http(method, path, body=None, token=None, headers=None):
     data = None if body is None else json.dumps(body).encode()
     h = {"Content-Type": "application/json", "Accept": "application/json, text/event-stream", **(headers or {})}
     if token:
@@ -81,10 +87,31 @@ def error_code(content):
 def main():
     evidence = sys.argv[1]
     os.makedirs(evidence, exist_ok=True)
-    status, _, _ = http("POST", "/mcp", {"jsonrpc": "2.0", "id": 1, "method": "tools/list"}, token=None)
-    record("no token is refused", status == 401, status=status)
+    _, _, config = http("GET", "/v1/config")
+    oidc = (config or {}).get("oidc") or {}
+    store = os.environ.get("THEGRAM_OAUTH_STORE") or os.path.expanduser(f"~/.config/thegram-e2e/{urllib.parse.urlparse(SERVER).hostname}.json")
+    session = oauth.Session(SERVER, store, os.environ.get("THEGRAM_OAUTH_CLIENT_ID") or oidc.get("desktop_client_id"))
+    found = session.found
+    record("no token is refused with a resource_metadata challenge", found["status"] == 401 and "resource_metadata" in found["challenge"],
+           www_authenticate=found["www_authenticate"])
+    prm = found.get("prm") or {}
+    record("protected resource metadata names /mcp and the authorization server", prm.get("resource") == SERVER + "/mcp" and bool(prm.get("authorization_servers")), prm=prm)
+    meta = found.get("metadata") or {}
+    record("authorization server supports PKCE S256, CIMD and issuer identification",
+           "S256" in meta.get("code_challenge_methods_supported", []) and meta.get("client_id_metadata_document_supported") is True
+           and meta.get("authorization_response_iss_parameter_supported") is True, issuer=meta.get("issuer"))
 
-    agent = Client(TOKEN)
+    token = session.access_token(prm["resource"])
+    api_token = session.access_token(oidc["resource"])
+    record("MCP access token is bound to the /mcp audience", oauth.jwt_claims(token).get("aud") == prm["resource"], aud=oauth.jwt_claims(token).get("aud"))
+    status, _, _ = http("GET", "/v1/vaults", token=token)
+    record("MCP token is refused by the vault API", status == 401, status=status)
+    status, _, _ = http("POST", "/mcp", {"jsonrpc": "2.0", "id": 1, "method": "tools/list"}, token=api_token)
+    record("vault API token is refused by /mcp", status == 401, status=status)
+    status, _, _ = http("POST", "/mcp", {"jsonrpc": "2.0", "id": 1, "method": "tools/list"}, token="not-a-jwt")
+    record("invalid token gets 401", status == 401, status=status)
+
+    agent = Client(token)
     status, init = agent.start()
     record("initialize", status == 200 and "result" in (init or {}), server=((init or {}).get("result") or {}).get("serverInfo"))
     _, listed = agent.rpc("tools/list")
@@ -122,7 +149,7 @@ def main():
     failed, state = agent.tool("gram_state", {"path": PATH, "selector": {"revision": 0}})
     record("gram_state reads revision 0", not failed)
 
-    status, _, body = http("GET", f"/v1/vaults/{VAULT}/files/{DOC}/history")
+    status, _, body = http("GET", f"/v1/vaults/{VAULT}/files/{DOC}/history", token=api_token)
     record("vault history holds both revisions", status == 200 and len((body or {}).get("history", [])) == 2, status=status)
 
     if OTHER:
@@ -131,9 +158,9 @@ def main():
         failed, denied = other.tool("gram_read", {"path": PATH})
         record("another account cannot read the document", failed and error_code(denied) in ("E_PATH", "E_FORBIDDEN"), result=denied)
 
-    status, headers, _ = http("GET", f"/v1/vaults/{VAULT}/files/{DOC}")
+    status, headers, _ = http("GET", f"/v1/vaults/{VAULT}/files/{DOC}", token=api_token)
     etag = headers.get("ETag") or headers.get("Etag")
-    status, _, _ = http("DELETE", f"/v1/vaults/{VAULT}/files/{DOC}", headers={"If-Match": etag})
+    status, _, _ = http("DELETE", f"/v1/vaults/{VAULT}/files/{DOC}", token=api_token, headers={"If-Match": etag})
     record("scratch document deleted", status in (200, 204), status=status)
 
     report = {"server": SERVER, "vault": VAULT, "document": DOC, "at": time.strftime("%Y-%m-%dT%H:%M:%S%z"),

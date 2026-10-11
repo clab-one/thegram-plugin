@@ -1,11 +1,8 @@
 {
-	"mcpServers": {
-		"thegram": {
-			"type": "http",
-			"url": "https://vault.thegram.one/mcp",
-			"headers": {
-				"Authorization": "Bearer ${THEGRAM_TOKEN}"
-			}
-		}
-	}
+  "mcpServers": {
+    "thegram": {
+      "type": "http",
+      "url": "https://vault.thegram.one/mcp"
+    }
+  }
 }

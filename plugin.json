@@ -1,0 +1,36 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "thegram-cloud",
+  "version": "0.2.0",
+  "description": "Thegram memory for cloud agents such as ChatGPT dots: the desktop app's gram_* tools over https://vault.thegram.one/mcp, signed in with your Thegram account. No Mac or desktop app needs to run.",
+  "author": {
+    "name": "clab-one"
+  },
+  "license": "UNLICENSED",
+  "keywords": [
+    "memory",
+    "thegram",
+    "mcp",
+    "remote"
+  ],
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "Thegram",
+        "shortDescription": "Project memory in your Thegram vaults and Google Drive",
+        "longDescription": "Read, search and record decisions, tasks, events and history in .gram documents stored in Thegram Cloud or your Google Drive, the same documents the Thegram app shows.",
+        "developerName": "clab-one",
+        "category": "Productivity",
+        "capabilities": [
+          "Read",
+          "Write"
+        ],
+        "websiteURL": "https://vault.thegram.one",
+        "defaultPrompt": [
+          "Use Thegram to show what changed in my project memory this week.",
+          "Use Thegram to record this decision in my project memory."
+        ]
+      }
+    }
+  }
+}

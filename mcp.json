@@ -1,0 +1,26 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+  "mcpServers": {
+    "thegram": {
+      "type": "streamable-http",
+      "url": "https://vault.thegram.one/mcp",
+      "extensions": {
+        "com.openai": {
+          "auth": {
+            "type": "oauth",
+            "client": {
+              "mode": "cimd"
+            },
+            "baseScopes": [
+              "openid",
+              "profile",
+              "email",
+              "offline_access"
+            ],
+            "defaultScopes": []
+          }
+        }
+      }
+    }
+  }
+}
