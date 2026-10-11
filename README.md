@@ -2,6 +2,8 @@
 
 Thegram memory for cloud agents: ChatGPT dots, ChatGPT and Codex, Claude, and any MCP client that runs off your Mac. The agent connects to `https://vault.thegram.one/mcp`, you sign in with your Thegram account once, and the agent gets the same `gram_*` tools as the desktop app's local MCP. No Mac, desktop app or token copying is needed.
 
+New to Thegram? The step-by-step guide at https://thegram.one/install/#chatgpt covers sign-up and every click, and a ChatGPT dot can walk you through it from https://thegram.one/install/chatgpt.md.
+
 ## What the agent sees
 
 | Mount | Path | Stored in |
@@ -13,7 +15,7 @@ You choose where a document lives. Nothing is copied between Thegram Cloud and D
 
 ## Connect a ChatGPT dot
 
-1. Sign in at https://vault.thegram.one, and connect Google Drive there if you want Drive mounts.
+1. Sign in at https://vault.thegram.one. The first sign-in creates your Thegram account; finish signing up (date of birth, terms). Then, under **Settings → Connections**, create a vault with **New Vault** or connect Google Drive with **Add account**, so the agent has somewhere to keep documents.
 2. Open https://chatgpt.com/plugins, select **+**, then **Add custom MCP server**.
 3. Name it `Thegram`, enter `https://vault.thegram.one/mcp` as the URL, and choose **OAuth** authentication. ChatGPT finds the Thegram sign-in on its own; leave the client fields empty.
 4. Accept the risk notice, select **Create as a plugin**, then **Install**.
