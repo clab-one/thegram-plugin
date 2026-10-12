@@ -15,7 +15,7 @@ The separate `clab-one/thegram-mcp` package (`thegram-memory`) is a Node integra
 | Tool | Arguments and result to use |
 | --- | --- |
 | `gram_brief` | `{path}` or `{folder}`; each `docs` row includes path/title/rev/hash/recorded/effective, plus open work and `next`. |
-| `gram_changes` | `{path or folder, since: next}`; exclusive recording-time cursor. For one document, `since_revision` is available. Follow `more` where present. |
+| `gram_changes` | `{path or folder, since}`; exclusive recording-time cursor. For a requested historical window, calculate an explicit ISO 8601 UTC `since` timestamp from the request time and follow each returned `more` cursor. `gram_brief.next` is for later incremental sync, not historical window start. For one document, `since_revision` is available. |
 | `gram_recall` | `{query, folder, mode?, type?, from?, to?, date?, top_k?, cursor?}`; `path#id` hits and document section hits. `scope` is exact `s` tag membership, not section/type. |
 | `gram_context` | `{ids:[{path,entity}], fields:[...]}`; selected fields, links and bounded rich text. Request `observed` explicitly for metric dates; the default field set omits it. |
 | `gram_read` | `{path}` gives outline; `{path,section}` gives one section's Markdown. Use outline heading/node IDs for ambiguous section names. |
