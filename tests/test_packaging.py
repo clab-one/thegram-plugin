@@ -334,6 +334,12 @@ class PackagingTests(unittest.TestCase):
         with self.assertRaises(package.PackageError):
             package.build_public(self.root, self.directory / "bad.zip")
 
+    def test_build_ignores_generated_finder_metadata(self):
+        self.put("skills/.DS_Store", b"generated Finder metadata")
+        output = package.build_public(self.root, self.directory / "with-finder-metadata.zip")
+        with zipfile.ZipFile(output) as archive:
+            self.assertNotIn("skills/.DS_Store", archive.namelist())
+
     def test_local_symlink_file_and_directory_fail(self):
         target = self.directory / "external"
         target.write_bytes(b"external")
@@ -345,7 +351,6 @@ class PackagingTests(unittest.TestCase):
         link.symlink_to(self.root / "skills", target_is_directory=True)
         with self.assertRaises(package.PackageError):
             package.build_public(self.root, self.directory / "bad.zip")
-
     def test_private_skill_source_rejects_symlink_ancestor(self):
         separate_root = self.directory / "symlink-repo"
         separate_root.mkdir()

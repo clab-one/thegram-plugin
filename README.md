@@ -1,8 +1,10 @@
 # thegram-cloud
 
-The cloud plugin for [Thegram](https://thegram.one), including the English [thegram-cloud skill](skills/thegram-cloud/SKILL.md) for dot and other agents. It discovers authorized mounts and project context, retrieves relevant decisions and evidence, and maintains readable project knowledge and durable outcomes within the user's authorized scope. Retrieval, analysis and drafts remain read-only unless persistence is authorized.
+The cloud plugin for [Thegram](https://thegram.one) gives people and supported AI clients a shared, purpose-based memory. **One purpose. One structured .gram file.** Keep useful information, sources, decisions, relationships and change history together, then explore the same records through document, dashboard and graph views in compatible Thegram apps, with revision history instead of a separate history or duplicated content for each view. Cloud surfaces currently support Document and Dashboard; Graph is available in the desktop app. Views depend on the recorded structure and the app.
 
-The plugin connects to `https://vault.thegram.one/mcp` using OAuth. No running Mac or desktop app is required. It preserves the existing `thegram-cloud` identity and `thegram` MCP server binding.
+Use it for plans, research, shared projects or everyday work—not only software development. When you authorize saving, the assistant can preserve useful context from conversations and other apps available through its authorized connectors, with source attribution rather than a raw transcript archive. The plugin itself does not fetch Slack or Gmail, and reading another source does not itself authorize copying it into Thegram. People can read and manage the same memory in supported Thegram apps; AI clients retrieve context and record authorized outcomes. No running Mac or desktop app is required for this cloud plugin.
+
+The plugin connects to https://vault.thegram.one/mcp using OAuth. It preserves the existing thegram-cloud identity and thegram MCP server binding. Local-only Mac files are not visible to the cloud server.
 
 ## Storage and local/cloud distinction
 
@@ -21,12 +23,16 @@ The [versioned release ZIP](https://github.com/clab-one/thegram-plugin/releases)
 
 For the step-by-step connection flow, see [the install guide](https://thegram.one/install/#chatgpt) and its [agent-readable guide](https://thegram.one/install/chatgpt.md). Sign in at [Thegram Cloud](https://vault.thegram.one), finish sign-up, and keep OAuth when connecting. The server may create a default writable vault on first discovery. Connect Drive in **Settings → Connections** when needed.
 
+## Public ChatGPT review materials
+
+The English [reviewer guide](review/reviewer-guide.md) defines exactly five positive and three negative tool scenarios; live review cases have been recorded. The [demo script](review/demo-script.md) records the actual run and its limits. Keep credentials and private reviewer details only in the portal's private Review details; do not put them in these files. The review page is https://thegram.one/review/openai/.
+
 ### Existing private ChatGPT custom MCP plugin
 
 Creating a custom MCP server at `https://vault.thegram.one/mcp` supplies tools but **does not automatically install this repository's skill**. To add/update it through that existing plugin's real packaging route:
 
 1. On the plugin page, download its ZIP through **⋯ → Download plugin ZIP**.
-2. Run `scripts/chatgpt-package.sh /path/to/downloaded-plugin.zip 1.5.0 /path/to/thegram-private-1.5.0.zip` in this repository. Use a version higher than that private plugin's current version.
+2. Run `scripts/chatgpt-package.sh /path/to/downloaded-plugin.zip 1.5.3 /path/to/thegram-private-1.5.3.zip` in this repository. Use a version higher than that private plugin's current version.
 3. Choose **⋯ → Upload new version** and upload the generated ZIP to the same plugin.
 4. Verify the host lists `thegram-cloud` with the new description and can load its references. Then call `gram_projects` and a relevant `gram_brief` to verify connection separately.
 
@@ -38,8 +44,8 @@ For other MCP clients, use the same remote endpoint and OAuth discovery. If a cl
 
 ```sh
 python3 -m unittest discover -s tests -p 'test_*.py' -v
-python3 scripts/package_plugin.py build --output /tmp/thegram-cloud-1.5.0.zip
-python3 scripts/package_plugin.py validate /tmp/thegram-cloud-1.5.0.zip --expected-version 1.5.0
+python3 scripts/package_plugin.py build --output /tmp/thegram-cloud-1.5.3.zip
+python3 scripts/package_plugin.py validate /tmp/thegram-cloud-1.5.3.zip --expected-version 1.5.3
 ```
 
 The offline packaging tests use synthetic exported ZIPs to check preservation, discovery, owned-folder replacement, references and unsafe-archive rejection. No OAuth tokens or personal files are required. The CI workflow runs these checks for the exact source commit.
@@ -57,7 +63,7 @@ Build and validate `thegram-cloud-<version>.zip`, commit/push the source, and pu
 ## Current limits
 
 - Cloud semantic search is unavailable; `auto` recall uses keyword matching.
-- The rich profile supports collection `list` and `table`; its generic `board` example is not a supported-view guarantee.
-- Dashboard, sparklines, Mermaid and historical sliders depend on the renderer; package/API validation does not establish their behavior in a host.
+- The rich profile supports collection list and table; its generic board example is not a supported-view guarantee. A .gram file can contain typed, linked records and can be rendered in different ways, but each surface supports its own view types and may require explicit view configuration in the file.
+- Dashboard, graph, sparklines, Mermaid and historical-slider behavior depends on the consuming renderer and the file's supported structure/configuration. The plugin does not automatically generate a dashboard or graph, and its package/API validation does not establish host UI rendering.
 - Historical `effective_at` selects a revision prefix, not a general merge of unordered backfilled facts. Recording time is separate from event/observation time.
 - The separately deployed server still supplies older blanket connector-capture onboarding text. The bundled skill preserves user scope and read-only requests explicitly; this package release does not change server instructions. Connecting only a custom MCP server without updating its skill does not deliver this workflow.

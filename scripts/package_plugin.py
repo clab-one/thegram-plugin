@@ -238,6 +238,8 @@ def local_tree(root: Path, prefix: str) -> dict[str, bytes]:
             if (Path(current) / dirname).is_symlink():
                 raise PackageError(f"Symlink directory: {Path(current) / dirname}")
         for filename in filenames:
+            if filename == ".DS_Store":
+                continue
             path = Path(current) / filename
             name = path.relative_to(root).as_posix()
             checked_name(name)
