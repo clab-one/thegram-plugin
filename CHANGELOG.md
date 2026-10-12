@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- Add live agent-scope MCP E2E with a fresh Logto client, one-time-token cookie sign-in, CSRF-protected grant management, default-only visibility, hidden ungranted vaults, read/write enforcement, and immediate revocation with the same unexpired MCP token/session. Clean temporary vaults/documents and the Logto application; write credential-redacted JSON request/response evidence.
+- Keep the ordinary MCP E2E on the default granted Thegram vault unless a pre-granted mount is specified; creating an arbitrary vault no longer implies agent write access.
+- Explain per-agent scopes and Connected agents settings in README, package descriptions, reviewer expectations and bundled skill error guidance. Preserve five positive and three negative review cases and existing package identity/version/OAuth bindings.
+- Record the unavailable MCP document-delete coverage explicitly: no deletion tool exists, and app API tokens do not exercise agent grants. Report the next endpoint’s production MCP audience as an isolation risk.
+
 ## 1.5.3 — 2026-10-12
 
 - Clarify purpose-based .gram memory for people and AI: save only what the user asks to save, with source attribution and revision history; Cloud supports Document and Dashboard, with Graph in the desktop app. MCP/OAuth configuration is unchanged.
