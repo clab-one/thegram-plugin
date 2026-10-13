@@ -64,6 +64,9 @@ Use only types and predicates supported by the current profile, and only where e
 Every relevant record should reach the project through explicit links. Body mentions and shared sections do not create graph edges. Co-mention does not prove dependency, support or implementation. Preserve old decisions and evidence; when a decision is replaced, set the old `x` to `superseded` and link the new decision with `replaces`. Prefer status changes to deletion of historical facts.
 
 Use sourced status values: task/risk/blocker `open`, `active`, `blocked`, `completed` or `superseded`; decision `accepted`, `open` or `superseded`; project/goal `active` or `completed`. A status missing from the brief is not permission to invent `open`. Completion requires the intended result and appropriate verification, beyond an instruction, ACK, build or file creation.
+## Structure records for deterministic views
+
+Record facts rather than designing a screen: the app/Viewer chooses templates deterministically; AI must not create a screen or write a `ViewSpec`. Journal: use `event` + `at` for occurrence time, not dated prose headings; set `effective_at` only for a sourced past fact. Project: give tasks `x` and link each task to its goal. Operations: give risks `x`; tag incident events `incident`, `outage` or `failure` and link them to the risk; link recovery events to evidence with `supports`; metrics need `value`, `unit` and `observed`. Unsupported states stay `unknown`. Follow `spec/projection.md` (“Evidence-based state”, “Dated section entries”, “View resolution and ViewSpec/1”, `status_counts` and `progress`).
 
 ## Keep time, metrics and views honest
 
