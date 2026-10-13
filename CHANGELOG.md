@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.5.4 — 2026-10-13
+
+- Thegram Cloud recall now ranks by meaning like the desktop app: `semantic` and `hybrid` work and `auto` fuses keyword and semantic ranks. Update the skill, contracts and README, which previously said cloud recall was keyword-only.
+- Explain how to recognize a keyword fallback: `gram_capabilities.semantic` unavailable, or a recall reporting `mode`/`reason` such as `SEMANTIC_INDEX_STALE` while a new document is indexed. Historical (`as_of`) recall stays keyword-only.
+
+The server-side change was deployed separately to vault.thegram.one; this package changes no MCP/OAuth configuration, credentials, access or scopes.
+
 ## 1.5.3 — 2026-10-12
 
 - Clarify purpose-based .gram memory for people and AI: save only what the user asks to save, with source attribution and revision history; Cloud supports Document and Dashboard, with Graph in the desktop app. MCP/OAuth configuration is unchanged.

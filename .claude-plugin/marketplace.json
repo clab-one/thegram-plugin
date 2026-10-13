@@ -8,7 +8,7 @@
 		{
 			"name": "thegram-cloud",
 			"source": "./",
-			"version": "1.5.3",
+			"version": "1.5.4",
 			"description": "One purpose, one structured .gram file: shared memory for people and AI over https://vault.thegram.one/mcp, no Mac or desktop app required."
 		}
 	]

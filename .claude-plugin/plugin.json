@@ -1,6 +1,6 @@
 {
   "name": "thegram-cloud",
-  "version": "1.5.3",
+  "version": "1.5.4",
   "description": "One purpose, one structured .gram file: shared memory for people and AI, with source-grounded information, decisions, relationships and change history. Use authorized Thegram Cloud vaults or separately connected Google Drive destinations.",
   "author": {
     "name": "Roy Kim"
