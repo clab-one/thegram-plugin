@@ -25,7 +25,7 @@ For the step-by-step connection flow, see [the install guide](https://thegram.on
 
 ## Public ChatGPT review materials
 
-The English [reviewer guide](review/reviewer-guide.md) defines exactly five positive and three negative tool scenarios; live review cases have been recorded. The [demo script](review/demo-script.md) records the actual run and its limits. Keep credentials and private reviewer details only in the portal's private Review details; do not put them in these files. The review page is https://thegram.one/review/openai/.
+The English [reviewer guide](review/reviewer-guide.md) defines five positive and three negative tool scenarios; the [demo script](review/demo-script.md) distinguishes the actual recorded run from future bundled-package reproduction. Recordings used a dev-mode custom `gram` MCP connection without the bundled skill and are published at https://thegram.one/review/openai/. Keep credentials, account identifiers and private reviewer details out of public files.
 
 ### Existing private ChatGPT custom MCP plugin
 
@@ -66,4 +66,4 @@ Build and validate `thegram-cloud-<version>.zip`, commit/push the source, and pu
 - The rich profile supports collection list and table; its generic board example is not a supported-view guarantee. A .gram file can contain typed, linked records and can be rendered in different ways, but each surface supports its own view types and may require explicit view configuration in the file.
 - Dashboard, graph, sparklines, Mermaid and historical-slider behavior depends on the consuming renderer and the file's supported structure/configuration. The plugin does not automatically generate a dashboard or graph, and its package/API validation does not establish host UI rendering.
 - Historical `effective_at` selects a revision prefix, not a general merge of unordered backfilled facts. Recording time is separate from event/observation time.
-- The separately deployed server still supplies older blanket connector-capture onboarding text. The bundled skill preserves user scope and read-only requests explicitly; this package release does not change server instructions. Connecting only a custom MCP server without updating its skill does not deliver this workflow.
+- The bundled skill and public installation guidance require user authorization before saving. This repository's package changes do not establish the current deployment state of server-side onboarding instructions. Connecting only a custom MCP server without loading/updating its skill does not deliver the bundled workflow.

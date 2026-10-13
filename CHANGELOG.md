@@ -3,14 +3,14 @@
 ## 1.5.3 — 2026-10-12
 
 - Clarify purpose-based .gram memory for people and AI: save only what the user asks to save, with source attribution and revision history; Cloud supports Document and Dashboard, with Graph in the desktop app. MCP/OAuth configuration is unchanged.
-- Align deployed vault save-consent instructions and thegram-web install documentation with explicit user authorization.
-- Provision and verify the synthetic `openai_review` account and Atlas fixture; configure and authorize the plugin in the OpenAI portal, verify the domain, and save reviewer credentials only in private Review details.
-- Record five positive and three negative live cases in ChatGPT web. The sessions used a dev-mode custom `gram` MCP connection without the bundled skill; they do not establish bundled-skill behavior. The public-but-unlisted review page is https://thegram.one/review/openai/.
-- Videos are being finalized in `evidence/review-video-20261012/`.
+- Update the package's save-consent guidance and public installation documentation to require explicit user authorization. This package change does not establish the deployment state of server-side onboarding instructions.
+- Prepare the synthetic Atlas review fixture; keep reviewer account details and portal configuration private.
+- Record five positive and three negative live cases in ChatGPT web on 2026-10-12. The runs used a dev-mode custom `gram` MCP connection without the bundled skill and do not establish bundled-skill behavior. The recordings are published at https://thegram.one/review/openai/.
+- The three recordings are publicly available: [review cases](https://thegram.one/assets/review/thegram-review-cases-en.mp4), [ChatGPT walkthrough](https://thegram.one/assets/review/chatgpt-gram-demo-en.mp4), and [web/Mac montage](https://thegram.one/assets/review/thegram-chatgpt-web-mac-montage-en.mp4).
 
-Owner maintenance: when Thegram requests updated terms acceptance, re-accept for `openai_review` (next expected: 2026-10-19). Before each review run, reset Atlas from `evidence/review-video-20261012/atlas-fixture.gram` and delete `northstar-website-refresh`.
+Owner maintenance: if the service requests updated terms acceptance, complete it before continuing. Before each repeat run, restore Atlas to the clean fixture and remove `northstar-website-refresh` if present; the existing authorized user account can be reused.
 
-No deployment, credential/access/scope change, or publication is performed by this package update.
+No server deployment or credential/access/scope change is performed by this package update. The review recordings are publicly available at the URL above.
 
 ## 1.5.2 — 2026-10-12
 
@@ -25,7 +25,7 @@ These package changes do not deploy the cloud server, change accounts/access/sco
 
 - Align the OpenAI interface developer name with C.Lab and synchronize public package manifests at version 1.5.1; keep Roy Kim as package author.
 - Finalize the five-positive/three-negative English review cases and proposed recording sequence; add explicit ISO 8601 UTC historical `gram_changes` guidance to the reviewer materials and bundled skill/contracts.
-- Record that deployed consent/documentation alignment and subsequent reviewer setup, cases, and recording status are updated in 1.5.3.
+- Record that 1.5.3 updates package consent guidance and reviewer setup, cases, and published recording status.
 
 No cloud server deployment, account/access/scope change, OAuth change, or credential change accompanies these metadata and documentation updates.
 
