@@ -62,7 +62,7 @@ Build and validate `thegram-cloud-<version>.zip`, commit/push the source, and pu
 
 ## Current limits
 
-- Cloud semantic search is unavailable; `auto` recall uses keyword matching.
+- Cloud recall ranks by meaning like the desktop app: `semantic` and `hybrid` work, and `auto` fuses keyword and semantic ranks. When `gram_capabilities.semantic` is unavailable, or a recall reports `mode`/`reason` (for example `SEMANTIC_INDEX_STALE` while a new document is still being indexed), that call used keyword matching. Historical (`as_of`) recall is keyword-only.
 - The rich profile supports collection list and table; its generic board example is not a supported-view guarantee. A .gram file can contain typed, linked records and can be rendered in different ways, but each surface supports its own view types and may require explicit view configuration in the file.
 - Dashboard, graph, sparklines, Mermaid and historical-slider behavior depends on the consuming renderer and the file's supported structure/configuration. The plugin does not automatically generate a dashboard or graph, and its package/API validation does not establish host UI rendering.
 - Historical `effective_at` selects a revision prefix, not a general merge of unordered backfilled facts. Recording time is separate from event/observation time.

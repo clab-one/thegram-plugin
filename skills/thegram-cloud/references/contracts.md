@@ -8,7 +8,7 @@ The cloud package uses Streamable HTTP at `https://vault.thegram.one/mcp` with O
 
 The server may create a default vault when an account has no writable vault during discovery; discovery does not authorize the agent to create memory records or capture other sources. `CONSENT_REQUIRED` and `PROVIDER_AUTH_REQUIRED` require the user's sign-up/reconnection flow. Preserve the requested storage destination.
 
-The separate `clab-one/thegram-mcp` package (`thegram-memory`) is a Node integration with desktop hooks/adapters and a local Unix-socket MCP proxy. It needs the running Mac app and its agent approval. Its repository-name project mapping and injected brief are local plugin features, not cloud features. Local folder writes may have no `sync`; mounted local writes can be pending. Cloud successful writes report `sync.state: synced`. Do not assume local semantic-search availability or rendering features transfer to cloud.
+The separate `clab-one/thegram-mcp` package (`thegram-memory`) is a Node integration with desktop hooks/adapters and a local Unix-socket MCP proxy. It needs the running Mac app and its agent approval. Its repository-name project mapping and injected brief are local plugin features, not cloud features. Local folder writes may have no `sync`; mounted local writes can be pending. Cloud successful writes report `sync.state: synced`. Cloud semantic search uses the same model and ranking as the desktop app; do not assume rendering features transfer to cloud.
 
 ## Selective reads
 
@@ -24,7 +24,7 @@ The separate `clab-one/thegram-mcp` package (`thegram-memory`) is a Node integra
 | `gram_range` | `{path,query?,start?,limit?}`; relevant revisions, or sequential history with `start:0`; pass `more` as the next start. |
 | `gram_state` | `{path,selector:{revision}}`, `{path,selector:{recorded_at}}` or `{path,selector:{effective_at}}`; choose one selector. |
 
-Date filters are inclusive; date-only `to` covers the whole day, and `YYYY-MM`/`YYYY` represent a span. Default record date: event `at`, metric `observed`, task `due`, otherwise `at`. `date` chooses another field. `auto` currently falls back to keyword; semantic search is unavailable, as reported by capabilities. Follow pagination and report incomplete coverage.
+Date filters are inclusive; date-only `to` covers the whole day, and `YYYY-MM`/`YYYY` represent a span. Default record date: event `at`, metric `observed`, task `due`, otherwise `at`. `date` chooses another field. `auto` fuses keyword and semantic ranks; `gram_capabilities.semantic` reports whether the model is available and `index` how many documents are indexed. A recall that returns `mode`/`reason` used keyword matching for that call. Follow pagination and report incomplete coverage.
 
 Historical selectors also work directly on `gram_read`, `gram_get`, `gram_list` without `select`, and inside each `gram_context.ids[]` item. Historical responses carry current document revision/hash and separate selected-history metadata under `at`; do not confuse a past projection with the current write base. Refresh the brief before writing.
 

@@ -23,7 +23,7 @@ Cloud vault documents are top-level `@mounts/<vault-id>/<project>.gram` (filenam
 
 Use `gram_recall {query, folder}` with distinctive words, `exact`/`keyword`, type or inclusive date filters. Fetch selected hits with `gram_context {ids, fields}`, read the relevant narrative with `gram_read {path, section}`, and follow needed neighbours with `gram_relations {from}`. `gram_read {path}` returns an outline, not a records array. Use `gram_range` for changes and `gram_state` for historical state.
 
-Check `gram_capabilities` and read `gram_profile` for the current task (`memory`, `create`, `edit` or `rich`) before the first write or unfamiliar formatting. The current cloud server has no semantic search: `auto` falls back to keyword; if retrieval misses, try another wording/mode/date filter once and state what remains unverified. Do not treat a truncated or incomplete search as proof of absence.
+Check `gram_capabilities` and read `gram_profile` for the current task (`memory`, `create`, `edit` or `rich`) before the first write or unfamiliar formatting. Cloud recall ranks by meaning (`auto` fuses keyword and semantic, scores are the last hit element); a response with `mode`/`reason` fell back to keyword, e.g. `SEMANTIC_INDEX_STALE` right after a large upload. If retrieval misses, try another wording/mode/date filter once and state what remains unverified. Do not treat a truncated or incomplete search as proof of absence.
 
 For tool shapes, history selectors, write recovery and cloud/local limits, read [references/contracts.md](references/contracts.md). For concrete retrieval, update, completion and metric payloads, read [references/examples.md](references/examples.md).
 
