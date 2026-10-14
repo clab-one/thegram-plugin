@@ -5,7 +5,7 @@ description: Use Thegram cloud gram_* MCP tools as purpose-based memory shared b
 
 # Thegram shared, purpose-based memory
 
-Help people and AI continue a plan, research topic, project or other ongoing purpose without rebuilding its context. Keep a readable account of the purpose, current state, sourced reasons, changes and unresolved work. Prose, typed records, meaningful relations and revision history belong to the same `.gram` file; supported Thegram apps present views of that source rather than separate documents to maintain.
+Help people and AI continue a plan, research topic, project or other ongoing purpose without rebuilding its context. Keep a readable account of the purpose, current state, sourced reasons, changes and unresolved work. Prose, typed records, meaningful relations and revision history belong to the same `.gram` file; the Viewer renders views of that source rather than separate documents to maintain.
 
 This is the cloud plugin's single memory workflow for **dot** and other AI assistants working with people. Use the current connection's `gram_*` tools, including connector-prefixed names when the host exposes them that way. `https://vault.thegram.one/mcp` uses the person's OAuth account and works without a running Mac. The separate `thegram-memory` plugin from `clab-one/thegram-mcp` connects to the running desktop app and injects local project context; it is not installed by this cloud package.
 
@@ -66,6 +66,9 @@ Use only types and predicates supported by the current profile, and only where e
 Every relevant record should reach the project through explicit links. Body mentions and shared sections do not create graph edges. Co-mention does not prove dependency, support or implementation. Preserve old decisions and evidence; when a decision is replaced, set the old `x` to `superseded` and link the new decision with `replaces`. Prefer status changes to deletion of historical facts.
 
 Use sourced status values: task/risk/blocker `open`, `active`, `blocked`, `completed` or `superseded`; decision `accepted`, `open` or `superseded`; project/goal `active` or `completed`. A status missing from the brief is not permission to invent `open`. Completion requires the intended result and appropriate verification, beyond an instruction, ACK, build or file creation.
+## Structure facts for template-capable views
+
+The Cloud product supports Document and Dashboard, not the four Viewer templates; these conventions describe source facts and do not promise Cloud template support. Where the Viewer supports templates, it selects deterministically; AI records facts, never screens or `ViewSpec`. Journal: prefer `event` records with `at`; dated headings still contribute separate entries. Project: link every task to its goal; leave `x` unset when unsourced so the projection reports `unknown`. Operations eligibility needs a `risk`, dated `event`, and `system`, `service` or `component`; risk `x` must be sourced. An incident needs an `incident`, `outage` or `failure` tag and risk link. Recovery needs a `recovery`, `restored` or `restoration` tag, risk link, and `supports`/`implements` link to evidence. Metrics need `value`, `unit` and `observed`, but are not an Operations component. Unsupported states are `unknown`.
 
 ## Keep time, metrics and views honest
 
