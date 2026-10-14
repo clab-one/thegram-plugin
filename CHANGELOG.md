@@ -1,7 +1,9 @@
 # Changelog
 
-## Unreleased
+## 2.0.0 — 2026-10-14
 
+- Start new memories from a template: schedule@1 for schedules and journals, project@1 for tasks and projects, knowledge@1 for research, knowledge and operations notes. Create with `gram_create {template}` and follow `gram_profile {topic: "templates"}` for required fields, status values and action ids.
+- Write to the head by default: omit base_revision and expected_hash, give each set/unset `old` (the value read, null if empty) and use `values` for repeated fields. Reread and decide on `E_PRECONDITION`; fix `E_TEMPLATE` and `E_ACTION` by `details.diagnostics` (field, expected, example) before dropping an action.
 - Add live agent-scope MCP E2E with a fresh Logto client, one-time-token cookie sign-in, CSRF-protected grant management, default-only visibility, hidden ungranted vaults, read/write enforcement, and immediate revocation with the same unexpired MCP token/session. Clean temporary vaults/documents and the Logto application; write credential-redacted JSON request/response evidence.
 - Keep the ordinary MCP E2E on the default granted Thegram vault unless a pre-granted mount is specified; creating an arbitrary vault no longer implies agent write access.
 - Explain per-agent scopes and Connected agents settings in README, package descriptions, reviewer expectations and bundled skill error guidance. Preserve five positive and three negative review cases and existing package identity/version/OAuth bindings.
