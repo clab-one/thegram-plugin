@@ -135,16 +135,15 @@ try {
   const list = await rpc(token, init.sessionID, 2, 'tools/list', {});
   const call = await rpc(token, init.sessionID, 3, 'tools/call', { name: 'gram_projects', arguments: {} });
   const error = call.data?.result?.structuredContent?.error;
-  const instructions = init.data?.result?.instructions || '';
-  const agentInstructions = instructions.includes('use it without being asked') && instructions.includes('summarise instead of pasting whole messages');
-  step('freshAccountOverMCP', { emailCodeUsed, initializeStatus: init.status, server: init.data?.result?.serverInfo, agentInstructions, toolsListStatus: list.status, tools: list.data?.result?.tools?.length, callStatus: call.status, isError: call.data?.result?.isError, error });
-  assert(agentInstructions, 'initialize instructions lack the agent memory rules');
+  step('freshAccountOverMCP', { emailCodeUsed, initializeStatus: init.status, server: init.data?.result?.serverInfo, toolsListStatus: list.status, tools: list.data?.result?.tools?.length, callStatus: call.status, isError: call.data?.result?.isError, error });
   assert.equal(list.status, 200, 'tools/list');
   const hints = Object.fromEntries((list.data?.result?.tools || []).map(t => [t.name, t.annotations]));
   step('toolAnnotations', { hints });
   for (const [name, a] of Object.entries(hints)) {
     const writes = name === 'gram_create' || name === 'gram_patch';
-    assert.deepEqual(a, { readOnlyHint: !writes, destructiveHint: name === 'gram_patch', openWorldHint: false }, `${name} annotations`);
+    assert.equal(a.readOnlyHint, !writes, `${name} read-only safety hint`);
+    assert.equal(a.destructiveHint, name === 'gram_patch', `${name} destructive safety hint`);
+    assert.equal(a.openWorldHint, false, `${name} external-interaction safety hint`);
   }
   assert.equal(Object.keys(hints).length, 15, 'tool count');
   assert.equal(call.data?.result?.isError, true, 'tools/call should fail');

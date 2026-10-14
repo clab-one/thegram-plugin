@@ -6,6 +6,8 @@
 - Keep the ordinary MCP E2E on the default granted Thegram vault unless a pre-granted mount is specified; creating an arbitrary vault no longer implies agent write access.
 - Explain per-agent scopes and Connected agents settings in README, package descriptions, reviewer expectations and bundled skill error guidance. Preserve five positive and three negative review cases and existing package identity/version/OAuth bindings.
 - Record the unavailable MCP document-delete coverage explicitly: no deletion tool exists, and app API tokens do not exercise agent grants. Report the next endpoint’s production MCP audience as an isolation risk.
+- Document Claude custom-connector setup using the existing MCP endpoint and CIMD OAuth, separately from bundled-skill installation and directory publication.
+- Preserve safety-hint checks in the live consent E2E without pinning the entire annotations object or initialization wording.
 
 ## 1.5.4 — 2026-10-13
 

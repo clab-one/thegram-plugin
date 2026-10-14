@@ -50,6 +50,12 @@ The updater preserves the exported plugin's identity, app dependency, OAuth/conn
 
 For other MCP clients, use the same remote endpoint and OAuth discovery. If a client does not support plugin skill loading, explicitly load the [skill](skills/thegram-cloud/SKILL.md) and its referenced resources as agent instructions; connecting tools alone is not equivalent to installing the package.
 
+## Connect Claude with the remote MCP server
+
+In Claude **Settings → Connectors**, add a custom connector named **Thegram** with `https://vault.thegram.one/mcp`. Keep **Sign in now** and **Use Claude’s published identity** (CIMD), then complete Thegram OAuth and authorize only the intended vaults. Verify the connection by listing accessible projects and reading a relevant memory.
+
+A remote connector supplies the MCP tools; it does not install the bundled skill or the Claude Code plugin. The Connectors Directory submission is separate from this package’s release and from a private custom connection.
+
 ## Validate and package
 
 ```sh
