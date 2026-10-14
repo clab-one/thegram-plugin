@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.1 — 2026-10-14
+
+- Lockstep release with Thegram 2.0.1, where every document shows one dashboard for its type. The plugin's tools, bundled skill and MCP/OAuth configuration are unchanged from 2.0.0.
+
 ## 2.0.0 — 2026-10-14
 
 - Start new memories from a template: schedule@1 for schedules and journals, project@1 for tasks and projects, knowledge@1 for research, knowledge and operations notes. Create with `gram_create {template}` and follow `gram_profile {topic: "templates"}` for required fields, status values and action ids.

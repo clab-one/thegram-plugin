@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "thegram-cloud",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "One purpose, one structured .gram file: shared memory for people and AI, with source-grounded information, decisions, relationships and change history. Use authorized Thegram Cloud vaults or separately connected Google Drive destinations. Agent visibility and writes are limited by per-agent access set at https://vault.thegram.one/settings/agents.",
   "author": {
     "name": "Roy Kim",
@@ -106,7 +106,7 @@
         "demo_recording_url": "https://thegram.one/review/openai/"
       },
       "publication": {
-        "release_notes": "2.0.0: New memories start from a template (schedule@1, project@1, knowledge@1) with gram_create template, and writes go to the head with the values the agent read, so concurrent edits are refused instead of overwritten. Agent access is limited per agent from Connected agents settings. MCP/OAuth configuration is unchanged.",
+        "release_notes": "2.0.1: Lockstep release with Thegram 2.0.1, where every document shows one dashboard for its type. The plugin's tools, skill and MCP/OAuth configuration are unchanged from 2.0.0.",
         "translations": {
           "ko-KR": {
             "subtitle": "목적별 .gram 하나, 사람과 AI의 기억",
