@@ -8,42 +8,42 @@ The cloud package uses Streamable HTTP at `https://vault.thegram.one/mcp` with O
 
 The server may create a default vault when an account has no writable vault during discovery; discovery does not authorize the agent to create memory records or capture other sources. `CONSENT_REQUIRED` and `PROVIDER_AUTH_REQUIRED` require the user's sign-up/reconnection flow. Preserve the requested storage destination.
 
-The separate `clab-one/thegram-mcp` package (`thegram-memory`) is a Node integration with desktop hooks/adapters and a local Unix-socket MCP proxy. It needs the running Mac app and its agent approval. Its repository-name project mapping and injected brief are local plugin features, not cloud features. Local folder writes may have no `sync`; mounted local writes can be pending. Cloud successful writes report `sync.state: synced`. Cloud semantic search uses the same model and ranking as the desktop app; do not assume rendering features transfer to cloud.
+The separate `clab-one/thegram-mcp` package (`thegram-memory`) is a Node integration for the running Mac app (hooks, a local Unix-socket MCP proxy, repository-name folders and an injected brief); those are not cloud features. Local folder writes may have no `sync`; cloud successful writes report `sync.state: synced`. Cloud semantic search uses the desktop model and ranking; rendering features do not transfer to cloud.
 
 ## Selective reads
 
 | Tool | Arguments and result to use |
 | --- | --- |
-| `gram_brief` | `{path}` or `{folder}`; each `docs` row includes path/title/rev/hash/recorded/effective, plus open work and `next`. |
-| `gram_changes` | `{path or folder, since}`; exclusive recording-time cursor. For a requested historical window, calculate an explicit ISO 8601 UTC `since` timestamp from the request time and follow each returned `more` cursor. `gram_brief.next` is for later incremental sync, not historical window start. For one document, `since_revision` is available. |
+| `gram_brief` | `{path}` or `{folder}`; `docs` rows are path/title/rev/hash/recorded/effective, then the template (`project@1` declared, `~project@1` suggested), plus open work and `next`. |
+| `gram_changes` | `{path or folder, since}`; exclusive recording-time cursor. A requested historical window starts at an explicit ISO 8601 UTC `since` computed from the request time, not `gram_brief.next`; follow each `more`. One document also takes `since_revision`. |
 | `gram_recall` | `{query, folder, mode?, type?, from?, to?, date?, top_k?, cursor?}`; `path#id` hits and document section hits. `scope` is exact `s` tag membership, not section/type. |
 | `gram_context` | `{ids:[{path,entity}], fields:[...]}`; selected fields, links and bounded rich text. Request `observed` explicitly for metric dates; the default field set omits it. |
 | `gram_read` | `{path}` gives outline; `{path,section}` gives one section's Markdown. Use outline heading/node IDs for ambiguous section names. |
-| `gram_list` | `{path,select:{type?,status?,tag?,from?,to?,date?}}` selects current records. A `select` query ignores historical selectors. |
+| `gram_list` | `{path,select:{type?,status?,tag?,from?,to?,date?}}` selects current records (ignoring historical selectors); without `select` document rows end with the template mark. |
 | `gram_relations` | `{from:{path,entity}, direction?, predicates?, depth?, paths?, limit?, cursor?}`; explicit edges, not relations inferred from prose. |
 | `gram_range` | `{path,query?,start?,limit?}`; relevant revisions, or sequential history with `start:0`; pass `more` as the next start. |
 | `gram_state` | `{path,selector:{revision}}`, `{path,selector:{recorded_at}}` or `{path,selector:{effective_at}}`; choose one selector. |
 
 Date filters are inclusive; date-only `to` covers the whole day, and `YYYY-MM`/`YYYY` represent a span. Default record date: event `at`, metric `observed`, task `due`, otherwise `at`. `date` chooses another field. `auto` fuses keyword and semantic ranks; `gram_capabilities.semantic` reports whether the model is available and `index` how many documents are indexed. A recall that returns `mode`/`reason` used keyword matching for that call. Follow pagination and report incomplete coverage.
 
-Historical selectors also work directly on `gram_read`, `gram_get`, `gram_list` without `select`, and inside each `gram_context.ids[]` item. Historical responses carry current document revision/hash and separate selected-history metadata under `at`; do not confuse a past projection with the current write base. Refresh the brief before writing.
+Historical selectors also work on `gram_read`, `gram_get`, `gram_list` without `select`, and in each `gram_context.ids[]` item. Such answers keep the current revision/hash and put the selected history under `at`; do not mistake a past projection for the current state.
 
 `effective_at` selection walks revision order, uses `recorded_at` where effective time is absent, and stops when the next applicable timestamp exceeds the selected time. It is not a general merge of arbitrarily reordered historical facts. Prefer explicit revisions/recording-time queries for audit, and verify any authorized historical-state change at the affected dates.
 
 ## Structured writes
 
-`gram_create` requires `{path,title,base_revision:null,content}`. `content` is text or `{text|rich,records,fields,blocks}`. It has **no `request_id`**. If its answer is lost, inspect the destination before retrying; do not create a similarly named duplicate. An already existing path is not an overwrite route.
+`gram_create` requires `{path,title,base_revision:null}` and `content` (text or `{text|rich,records,fields,blocks}`) unless `template` (`schedule@1`, `project@1`, `knowledge@1`) starts the body from its own headings. A template declares the document: Core then checks its records against `gram_profile {topic:"templates"}` and refuses violations with `E_TEMPLATE` and `details.diagnostics`. It has **no `request_id`**. If its answer is lost, inspect the destination before retrying; do not create a similarly named duplicate. An already existing path is not an overwrite route.
 
-`gram_patch` requires `{path,base_revision,expected_hash,request_id,operations}`. Revision is a nonnegative integer; hash is the opaque 16-hex value from the current cloud brief/write; request ID is 1–128 characters. Operations must be nonempty. One successful call is one real revision.
+`gram_patch` requires `{path,request_id,operations}`; request ID is 1–128 characters and operations are nonempty. Without `base_revision`/`expected_hash` it writes to the head: each set/unset carries `old`, the value read (string, array in order, or `null`), and Core refuses with `E_PRECONDITION` and `details.conditions` only when such a field changed, an added ID exists with other content or a place target is gone. With a nonnegative `base_revision` and the opaque 16-hex `expected_hash` the whole document must be unchanged; `remove` and whole-body `text`/`drop-text`/`rich` need them. `action`/`action_target` name a template action, whose listed operations and fields must match exactly (`E_ACTION`; without `action` the same change is still checked against the template). One successful call is one real revision.
 
 | Operation | Shape |
 | --- | --- |
 | add | `{op:"add",record:{type,id,fields:{t:["Title"],d:["Outcome."]},links:[["part-of","prj-atlas"]]},place:{section:"Plan"}}` |
-| set | `{op:"set",entity:"task-verify",key:"x",value:"completed"}` |
+| set | `{op:"set",entity:"task-verify",key:"x",value:"completed",old:"active"}`; several values `values:["a","b"]` |
 | link / unlink | `{op:"link",entity:"dec-new",predicate:"replaces",target:"dec-old"}` |
 | edit-text | `{op:"edit-text",entity:"doc",kind:"rich",old:"exact unique text",new:"replacement"}` |
 
-Add field values are arrays of strings; a set value is one string. `t` is required and single-line. Current types: `project goal requirement assumption decision task blocker risk event artifact evidence metric component system service source history knowledge context person agent run asset`. Known predicates: `part-of implements depends derives related supports contradicts replaces blocks enables`. Unsupported add predicates can be stored without appearing in relation reads; do not use them as graph links. Valid extension fields may be stored with `W_EXTENSION_FIELD`, but prefer profile fields. Unknown record types fail.
+Add field values are arrays of strings; a set takes `value` (one string) or `values`. `t` is required and single-line. Current types: `project goal requirement assumption decision task blocker risk event artifact evidence metric component system service source history knowledge context person agent run asset`. Known predicates: `part-of implements depends derives related supports contradicts replaces blocks enables`. Unsupported add predicates can be stored without appearing in relation reads; do not use them as graph links. Valid extension fields may be stored with `W_EXTENSION_FIELD`, but prefer profile fields. Unknown record types fail. A template document accepts only its listed `x` values and required fields.
 
 `source` refers to a real `source` record ID, not a URL. Put URLs in `ref`. Preserve sourced owners/deadlines and omit unknown ones. Raw `x` accepts strings; misspellings can appear as open work. Missing `x` can omit a task/risk from the open brief, so compare both brief and selected records.
 
@@ -52,7 +52,7 @@ Add field values are arrays of strings; a set value is one string. `t` is requir
 ## Recovery and completion
 
 1. Retain the exact patch payload and response. If the response is lost, inspect the document and retry the **identical** request with the same ID. The receipt may report `replayed:true`; there is no public `gram_receipt` tool.
-2. `STALE_REVISION`, stale hash or `STORAGE_CONFLICT`: refresh the brief and affected prose/records; preserve concurrent edits, check whether the intent remains needed and rebuild with a new request ID. Do not retry an old write blindly.
+2. `E_PRECONDITION`, `STALE_REVISION`, stale hash or `STORAGE_CONFLICT`: refresh the affected prose/records; preserve concurrent edits, check whether the intent remains needed and rebuild with a new request ID. Do not retry an old write blindly. Fix `E_TEMPLATE`/`E_ACTION` by `details.diagnostics`; `E_CAS_REQUIRED` means the operation needs `base_revision`/`expected_hash`.
 3. `E_REQUEST_REUSE` means the same ID was used for a different request. Use a new ID only after reconciling the actual outcome. A rare replay can return `intent_checked:false`; readback is required even when a receipt is successful.
 4. Resolve `E_AMBIGUOUS_TEXT` by reading the exact text and selecting a unique span. Resolve missing/duplicate IDs by reusing the existing record or correcting the target, never by repeated imports.
 5. Confirm `sync.state = synced`, then read the changed sections, selected fields and relations freshly. Check selected historical states if changed. A replay can report the document's newer current revision; verify the intended fields, not merely a revision number.

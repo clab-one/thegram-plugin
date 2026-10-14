@@ -1,6 +1,6 @@
 # Worked project-memory lifecycle
 
-The linked [lifecycle.json](lifecycle.json) is **fictional, synthetic test data**, not facts to persist about a person or a project. `example-vault` and `example.com` are placeholders. Replace the path with the exact authorized mount/document. At every write replace `${doc.rev}` and `${doc.hash}` with the fresh brief or preceding write response; never submit the placeholders. The example deliberately omits owners, deadlines and priority because the hypothetical evidence supplies none.
+The linked [lifecycle.json](lifecycle.json) is **fictional, synthetic test data**, not facts to persist about a person or a project. `example-vault` and `example.com` are placeholders. Replace the path with the exact authorized mount/document. The fixture pins `base_revision`/`expected_hash` to exercise whole-document checks; replace `${doc.rev}` and `${doc.hash}` with the fresh brief or preceding write response and never submit the placeholders. Ordinary writes go to the head with `old` instead. The example deliberately omits owners, deadlines and priority because the hypothetical evidence supplies none.
 
 ## Retrieve before deciding
 
