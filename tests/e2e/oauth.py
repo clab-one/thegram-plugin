@@ -6,6 +6,7 @@ token (0600, outside the repository) to mint access tokens for any resource.
 import base64
 import hashlib
 import http.server
+import http.cookiejar
 import json
 import os
 import re
@@ -123,3 +124,123 @@ class Session:
             except RuntimeError:
                 del self.refresh[resource]
         return self.login(resource)["access_token"]
+
+
+class NoRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, *args, **kwargs):
+        return None
+
+
+class CookieSession:
+    """User cookies + CSRF manage grants; agent tokens never do."""
+    def __init__(self, server):
+        self.server, self.csrf = server, None
+        self.opener = urllib.request.build_opener(
+            urllib.request.HTTPCookieProcessor(http.cookiejar.CookieJar()), NoRedirect())
+
+    def request(self, method, path, body=None, headers=None):
+        url = path if path.startswith(("https://", "http://")) else self.server + path
+        h = dict(headers or {})
+        if url.startswith(self.server + "/"):
+            h["Origin"] = self.server
+            if self.csrf and method not in ("GET", "HEAD"):
+                h["X-CSRF-Token"] = self.csrf
+        if isinstance(body, (dict, list)):
+            body = json.dumps(body).encode()
+            h["Content-Type"] = "application/json"
+        req = urllib.request.Request(url, data=body, headers=h, method=method)
+        try:
+            with self.opener.open(req, timeout=60) as response:
+                status, hdrs, raw = response.status, response.headers, response.read()
+        except urllib.error.HTTPError as error:
+            status, hdrs, raw = error.code, error.headers, error.read()
+        try:
+            result = json.loads(raw) if raw else None
+        except ValueError:
+            result = raw.decode(errors="replace")
+        return status, dict(hdrs), result
+
+    def follow(self, url, until):
+        for _ in range(20):
+            if until(url):
+                return url
+            status, headers, _ = self.request("GET", url)
+            location = headers.get("Location")
+            if status not in (301, 302, 303, 307, 308) or not location:
+                return url
+            url = urllib.parse.urljoin(url, location)
+        raise RuntimeError("OAuth redirect loop")
+
+    def sign_in(self, config, email, management):
+        if os.environ.get("GRAM_VAULT_E2E_SIGNIN") != "token":
+            raise RuntimeError("Agent-scope suite requires GRAM_VAULT_E2E_SIGNIN=token")
+        logto = config["oidc"]["issuer"].rsplit("/oidc", 1)[0]
+        page = self.follow(self.server + "/auth/login?provider=email&next=/settings/agents",
+                           lambda url: url.startswith(logto + "/") and "/oidc/" not in url)
+        if urllib.parse.urlparse(page).path != "/identifier-sign-in":
+            raise RuntimeError("Vault login did not open Logto email sign-in")
+        status, _, result = self.request("PUT", logto + "/api/experience", {"interactionEvent": "SignIn"})
+        if status not in (200, 204):
+            raise RuntimeError(f"Logto interaction {status}: {result}")
+        one_time = management.request("POST", "/api/one-time-tokens", {"email": email, "expiresIn": 600})
+        status, _, result = self.request("POST", logto + "/api/experience/verification/one-time-token/verify",
+                                        {"identifier": {"type": "email", "value": email}, "token": one_time["token"]})
+        if status != 200:
+            raise RuntimeError(f"Logto verification {status}: {result}")
+        status, _, result = self.request("POST", logto + "/api/experience/identification", {"verificationId": result["verificationId"]})
+        if status != 204:
+            raise RuntimeError(f"Existing E2E account identification {status}: {result}")
+        status, _, result = self.request("POST", logto + "/api/experience/submit")
+        if status != 200:
+            raise RuntimeError(f"Logto submit {status}: {result}")
+        self.follow(result["redirectTo"], lambda url: url.startswith(self.server + "/")
+                    and urllib.parse.urlparse(url).path != "/auth/callback")
+        status, _, profile = self.request("GET", "/v1/me")
+        if status != 200 or not profile.get("csrf_token") or profile.get("consent_required"):
+            raise RuntimeError("Use an existing adult E2E account with current consent and a cookie session")
+        self.csrf = profile["csrf_token"]
+        return profile
+
+    def access_token(self, found, client_id, resource):
+        """PKCE through the Logto cookie session, without storing tokens."""
+        verifier, state = secrets.token_urlsafe(48), secrets.token_urlsafe(24)
+        redirect = "http://127.0.0.1:53682/callback"
+        query = {"client_id": client_id, "redirect_uri": redirect, "response_type": "code",
+                 "scope": " ".join(found["prm"]["scopes_supported"]), "resource": resource,
+                 "state": state, "code_challenge_method": "S256",
+                 "code_challenge": base64.urlsafe_b64encode(hashlib.sha256(verifier.encode()).digest()).rstrip(b"=").decode()}
+        callback = self.follow(found["metadata"]["authorization_endpoint"] + "?" + urllib.parse.urlencode(query),
+                               lambda url: url.startswith(redirect))
+        params = urllib.parse.parse_qs(urllib.parse.urlparse(callback).query)
+        if params.get("state") != [state] or not params.get("code"):
+            raise RuntimeError(f"PKCE did not return a code (path={urllib.parse.urlparse(callback).path}, error={params.get('error')})")
+        status, _, raw = fetch(found["metadata"]["token_endpoint"], urllib.parse.urlencode({
+            "grant_type": "authorization_code", "client_id": client_id, "code": params["code"][0],
+            "redirect_uri": redirect, "code_verifier": verifier, "resource": resource}).encode(),
+            {"Content-Type": "application/x-www-form-urlencoded"}, "POST")
+        if status != 200:
+            raise RuntimeError(f"PKCE token exchange {status}: {raw!r}")
+        return json.loads(raw)["access_token"]
+
+
+class Management:
+    """Short-lived Logto Management token; secrets never enter reports."""
+    def __init__(self, issuer):
+        self.base = issuer.rsplit("/oidc", 1)[0]
+        with open(os.path.expanduser("~/.config/thegram-vault/logto-apps.json")) as file:
+            app = json.load(file)["applications"]["management"]
+        basic = base64.b64encode(f"{app['clientId']}:{app['clientSecret']}".encode()).decode()
+        status, _, raw = fetch(self.base + "/oidc/token", urllib.parse.urlencode({
+            "grant_type": "client_credentials", "resource": "https://default.logto.app/api", "scope": "all"}).encode(),
+            {"Authorization": "Basic " + basic, "Content-Type": "application/x-www-form-urlencoded"}, "POST")
+        if status != 200:
+            raise RuntimeError(f"Management token {status}")
+        self.token = json.loads(raw)["access_token"]
+
+    def request(self, method, path, body=None):
+        status, _, raw = fetch(self.base + path, None if body is None else json.dumps(body).encode(),
+                               {"Authorization": "Bearer " + self.token, "Content-Type": "application/json"}, method)
+        if status not in (200, 201, 204):
+            raise RuntimeError(f"Management {method} {path} {status}: {raw!r}")
+        return json.loads(raw) if raw else None
+
