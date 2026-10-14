@@ -4,7 +4,7 @@ This reference describes the inspected cloud contract, not an installation or pe
 
 ## Connection and storage
 
-The cloud package uses Streamable HTTP at `https://vault.thegram.one/mcp` with OAuth. `gram_projects` returns `mounts` with `{key,id,kind,name,count,access}`. Use `key` as the path prefix. A cloud vault filename before `.gram` must start with a letter/digit and contain at most 96 letters/digits/`_`/`-`; only root documents are writable. Drive supports folder paths. Never substitute a display name for a key or fall back to another mount after denial/conflict.
+The cloud package uses Streamable HTTP at `https://vault.thegram.one/mcp` with OAuth. `gram_projects` returns `mounts` with `{key,id,kind,name,count,access}`. Use `key` as the path prefix. Vault and Drive mounts both support folder paths; a write to a nested path creates the missing folders in the vault or in Google Drive. Never substitute a display name for a key or fall back to another mount after denial/conflict.
 
 The server may create a default vault when an account has no writable vault during discovery; discovery does not authorize the agent to create memory records or capture other sources. `CONSENT_REQUIRED` and `PROVIDER_AUTH_REQUIRED` require the user's sign-up/reconnection flow. Preserve the requested storage destination.
 
@@ -19,7 +19,7 @@ The separate `clab-one/thegram-mcp` package (`thegram-memory`) is a Node integra
 | `gram_recall` | `{query, folder, mode?, type?, from?, to?, date?, top_k?, cursor?}`; `path#id` hits and document section hits. `scope` is exact `s` tag membership, not section/type. |
 | `gram_context` | `{ids:[{path,entity}], fields:[...]}`; selected fields, links and bounded rich text. Request `observed` explicitly for metric dates; the default field set omits it. |
 | `gram_read` | `{path}` gives outline; `{path,section}` gives one section's Markdown. Use outline heading/node IDs for ambiguous section names. |
-| `gram_list` | `{path,select:{type?,status?,tag?,from?,to?,date?}}` selects current records (ignoring historical selectors); without `select` document rows end with the template mark. |
+| `gram_list` | `{path,select:{type?,status?,tag?,from?,to?,date?}}` selects current records (ignoring historical selectors); without `select` document rows end with the template mark and `folders` lists every folder in scope, empty ones too. `{path,trash:true}` lists the trash as `[original path, kind, id, trashed_at, explicit]`. |
 | `gram_relations` | `{from:{path,entity}, direction?, predicates?, depth?, paths?, limit?, cursor?}`; explicit edges, not relations inferred from prose. |
 | `gram_range` | `{path,query?,start?,limit?}`; relevant revisions, or sequential history with `start:0`; pass `more` as the next start. |
 | `gram_state` | `{path,selector:{revision}}`, `{path,selector:{recorded_at}}` or `{path,selector:{effective_at}}`; choose one selector. |
@@ -48,6 +48,19 @@ Add field values are arrays of strings; a set takes `value` (one string) or `val
 `source` refers to a real `source` record ID, not a URL. Put URLs in `ref`. Preserve sourced owners/deadlines and omit unknown ones. Raw `x` accepts strings; misspellings can appear as open work. Missing `x` can omit a task/risk from the open brief, so compare both brief and selected records.
 
 `place` belongs on an add and supports `"end"`, `{after:"id"}` or `{section:"exact heading or node ID"}`. It requires a rich document body and cannot share a patch with `edit-text`, `rich`, `text` or `drop-text`. A record without placement can exist without being visible in the body. Operations run in order; add a target before linking to it in a patch. In create content, records may link to each other regardless of order; place them with standalone `[[id]]` lines or appropriate collections.
+
+## Files and folders
+
+Use these only when the user asks to organize, delete or restore.
+
+| Tool | Arguments and result |
+| --- | --- |
+| `gram_folder` | `{path}` creates the folder and missing parents; returns `{folder, created}`. An existing folder returns `created:false`. |
+| `gram_move` | `{path, to}` renames and/or moves one document or folder inside the same mount; missing destination folders are created; returns the new `path`. Doc history, record IDs and links stay. |
+| `gram_delete` | `{path}` moves one document or folder (with contents) to the mount's trash; returns `{trashed, kind, id}`. A changed document fails with `STORAGE_CONFLICT`: read it again first. |
+| `gram_restore` | `{path}` with the original path, or `{path: <mount key>, id}` from the trash listing. A folder restores everything trashed with it; a missing parent restores into the root and a name clash gets a `(1)` suffix, so report the returned `restored` path. |
+
+`E_NAME_CONFLICT` means the destination already holds that name; `E_INVALID_MOVE` a folder moved into itself or the root; `E_AMBIGUOUS` several trashed items share the path (pass one of `details.candidates` as `id`); `E_PRUNED` the trashed version is no longer retained. Moving between mounts is not supported.
 
 ## Recovery and completion
 

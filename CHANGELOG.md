@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.2 — 2026-10-14
+
+- Thegram Cloud vaults have real folders that behave like the connected Google Drive tree. Vault documents may live at `@mounts/<vault-id>/<folders>/<name>.gram`; writing to a nested path creates the folders in the vault or in Drive.
+- New tools: `gram_folder` (create), `gram_move` (rename/move inside one mount), `gram_delete` (move one document or folder to the trash; needs a delete grant) and `gram_restore`. `gram_list` returns `folders`, and `gram_list {path, trash: true}` lists the trash. The skill uses them only on the user's request and confirms before deleting; there is still no vault, account or bulk deletion.
+- The live agent-scope E2E now checks that a write grant refuses `gram_delete` and a delete grant trashes and restores; the tool count is 19. Review case 6 explains single-item trash instead of "no deletion tool".
+
 ## 2.0.1 — 2026-10-14
 
 - Thegram 2.0.1 shows one dashboard per document type: `project@1` Project Tracker, `schedule@1` Journal, `knowledge@1` Knowledge. The bundled skill, contracts and README now say so: pick one template for a new document with `gram_create {template}`; only a declared document is editable on its dashboard; a document without a template shows Core's recommended dashboard (`~project@1`) read-only, and the agent declares a template only when the user asks; an unknown template declaration has no dashboard. Wording that suggested several screens or boards per template is removed.

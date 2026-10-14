@@ -14,7 +14,7 @@ vault or Drive API, deletes it there, and writes <evidence-dir>/mcp-e2e-report.j
 Without THEGRAM_MOUNT it uses the default writable Thegram vault and deletes only the scratch document.
 THEGRAM_AGENT_SCOPE=1 GRAM_VAULT_E2E_SIGNIN=token THEGRAM_E2E_MAILBOX=<configured mailbox>
 runs the fresh-client scope suite instead, with cookie+CSRF management and temporary Logto application cleanup.
-Its agent-scope-report.json records raw requests/responses with credentials redacted and the unavailable MCP deletion coverage.
+Its agent-scope-report.json records raw requests/responses with credentials redacted, including the write-denied and delete-permitted gram_delete checks.
 """
 import json
 import os
@@ -154,7 +154,7 @@ def exercise(token, api_token, mount):
     record("initialize", status == 200 and "result" in (init or {}), server=((init or {}).get("result") or {}).get("serverInfo"))
     _, listed = agent.rpc("tools/list")
     names = sorted(t["name"] for t in ((listed or {}).get("result") or {}).get("tools", []))
-    record("tools/list has the 15 gram tools", len(names) == 15 and all(n.startswith("gram_") for n in names), tools=names)
+    record("tools/list has the 19 gram tools", len(names) == 19 and all(n.startswith("gram_") for n in names), tools=names)
 
     failed, projects = agent.tool("gram_projects", {})
     mounts = {m["id"]: m for m in (projects or {}).get("mounts", [])}
@@ -225,9 +225,7 @@ def scope_main(evidence):
     user, management = oauth.CookieSession(SERVER), None
     client_id, second, before, default = None, None, None, None
     disconnected = False
-    report_detail = {"coverage_gaps": [{"criterion": "write denies document delete; delete permits document delete",
-        "status": "unreachable_through_mcp", "reason": "The 15 MCP tools expose no document deletion. API-audience tokens are KindBearer, not KindAgent, and cannot prove agent delete enforcement. Server unit tests must cover delete enforcement."}],
-        "requests": exchanges}
+    report_detail = {"requests": exchanges}
 
     def api(method, path, body=None, headers=None):
         status, h, answer = user.request(method, path, body, headers)
@@ -295,7 +293,7 @@ def scope_main(evidence):
         require("initialize", status == 200 and "result" in (init or {}), status=status, response=init)
         _, listed = agent.rpc("tools/list")
         names = [t["name"] for t in ((listed or {}).get("result") or {}).get("tools", [])]
-        require("15 MCP tools (no document delete)", len(names) == 15 and "gram_delete" not in names, tools=names)
+        require("19 MCP tools including file management", len(names) == 19 and {"gram_folder", "gram_move", "gram_delete", "gram_restore"} <= set(names), tools=names)
         mounts = projects(agent)
         require("first sight exposes only writable Thegram", len(mounts) == 1 and next(iter(mounts.values())).get("name") == "Thegram"
                 and next(iter(mounts.values())).get("access") == "write", mounts=mounts)
@@ -322,8 +320,17 @@ def scope_main(evidence):
         status, _, _ = http("GET", "/v1/vaults", token=token)
         require("MCP audience cannot access vault API", status == 401, status=status)
         exercise(token, api_token, second)
+        trash_path = f"@mounts/{second}/{DOC}-trash.gram"
+        create(agent, trash_path, "write grant creates the trash candidate")
+        denial(agent, "gram_delete", {"path": trash_path}, "write grant rejects gram_delete with settings URL")
         grant("delete")
         create(agent, f"@mounts/{second}/{DOC}-delete-grant.gram", "delete level includes MCP write")
+        failed, trashed = agent.tool("gram_delete", {"path": trash_path})
+        require("delete grant permits gram_delete", not failed and (trashed or {}).get("trashed") == trash_path, result=trashed)
+        failed, listed_trash = agent.tool("gram_list", {"path": f"@mounts/{second}", "trash": True})
+        require("trash lists the deleted document", not failed and any(row[0] == trash_path for row in (listed_trash or {}).get("trash", [])), result=listed_trash)
+        failed, restored = agent.tool("gram_restore", {"path": trash_path})
+        require("gram_restore brings it back", not failed and (restored or {}).get("restored") == trash_path, result=restored)
         status, _, answer = api("DELETE", "/v1/me/agents/" + client_id)
         disconnected = status == 204
         require("agent disconnected and Logto grant revoked", disconnected, status=status, result=answer)

@@ -10,8 +10,8 @@ The plugin connects to https://vault.thegram.one/mcp using OAuth. It preserves t
 
 | Mount | Path | Storage |
 | --- | --- | --- |
-| Thegram Cloud vault granted to this agent | `@mounts/<vault-id>/<project>.gram` | Top-level cloud vault document. |
-| Connected Drive account explicitly granted to this agent | `@mounts/google-drive-<account>/<folders>/<name>.gram` | Requested Google Drive destination. |
+| Thegram Cloud vault granted to this agent | `@mounts/<vault-id>/<folders>/<name>.gram` | Cloud vault document; folders are real vault folders. |
+| Connected Drive account explicitly granted to this agent | `@mounts/google-drive-<account>/<folders>/<name>.gram` | Requested Google Drive destination; folders are real Drive folders. |
 
 Use the exact keys from `gram_projects`. Reuse the established project document. Do not copy between mounts or redirect failed saves. Shared-vault viewers cannot write. Local-only Mac folders are not visible to the cloud server.
 
@@ -23,7 +23,7 @@ Manage access and disconnect agents in **Settings → Connected agents** at http
 
 **Reviewer handling:** `AGENT_SCOPE_DENIED` is a tool error, not a successful empty result or a save receipt. Stop the denied operation, explain which requested access is blocked, and give the settings URL. Do not retry unchanged, switch credentials, copy to another mount, or report success. The user must change the scope in their cookie-authenticated settings session; agent bearer tokens cannot manage grants. After an authorized scope change, rediscover mounts and obtain fresh revision/hash before retrying the original authorized operation. Disconnecting clears access immediately, including still-unexpired tokens and existing MCP sessions; reconnecting is a separate user action.
 
-The current MCP tool set has **no document-delete tool**. A delete-level grant includes write but does not add a deletion tool. Deleting records with `gram_patch` is a document edit, not proof of document-delete permission. API-audience tokens represent an app user (`KindBearer`), not an MCP agent (`KindAgent`); API deletion with those tokens cannot verify agent delete enforcement.
+File management uses `gram_folder` (create a folder), `gram_move` (rename/move within one mount), `gram_delete` (move one document or folder to the mount's trash) and `gram_restore` (bring it back; list the trash with `gram_list {trash: true}`). Folder, move and restore need **write**; `gram_delete` needs **delete**, so the default write-only grant cannot trash anything until the user raises it. Nothing is erased by these tools and there is no bulk or vault/account deletion. Deleting records with `gram_patch` is a document edit, not a document deletion.
 
 [`clab-one/thegram-mcp`](https://github.com/clab-one/thegram-mcp) owns the separate **thegram-memory** desktop integration. Its Node hooks/adapters, repository-folder mapping, local MCP proxy and injected brief require the running Mac app. This repository owns the remote cloud plugin and its distribution; installing this package does not install that local integration.
 
@@ -42,7 +42,7 @@ The English [reviewer guide](review/reviewer-guide.md) defines five positive and
 Creating a custom MCP server at `https://vault.thegram.one/mcp` supplies tools but **does not automatically install this repository's skill**. To add/update it through that existing plugin's real packaging route:
 
 1. On the plugin page, download its ZIP through **⋯ → Download plugin ZIP**.
-2. Run `scripts/chatgpt-package.sh /path/to/downloaded-plugin.zip 2.0.1 /path/to/thegram-private-2.0.1.zip` in this repository. Use a version higher than that private plugin's current version.
+2. Run `scripts/chatgpt-package.sh /path/to/downloaded-plugin.zip 2.0.2 /path/to/thegram-private-2.0.2.zip` in this repository. Use a version higher than that private plugin's current version.
 3. Choose **⋯ → Upload new version** and upload the generated ZIP to the same plugin.
 4. Verify the host lists `thegram-cloud` with the new description and can load its references. Then call `gram_projects` and a relevant `gram_brief` to verify connection separately.
 
@@ -60,8 +60,8 @@ A remote connector supplies the MCP tools; it does not install the bundled skill
 
 ```sh
 python3 -m unittest discover -s tests -p 'test_*.py' -v
-python3 scripts/package_plugin.py build --output /tmp/thegram-cloud-2.0.1.zip
-python3 scripts/package_plugin.py validate /tmp/thegram-cloud-2.0.1.zip --expected-version 2.0.1
+python3 scripts/package_plugin.py build --output /tmp/thegram-cloud-2.0.2.zip
+python3 scripts/package_plugin.py validate /tmp/thegram-cloud-2.0.2.zip --expected-version 2.0.2
 ```
 
 The offline packaging tests use synthetic exported ZIPs to check preservation, discovery, owned-folder replacement, references and unsafe-archive rejection. No OAuth tokens or personal files are required. The CI workflow runs these checks for the exact source commit.
@@ -80,7 +80,7 @@ THEGRAM_SERVER=https://next.thegram.one python3 tests/e2e/mcp_e2e.py "evidence/a
 THEGRAM_SERVER=https://vault.thegram.one python3 tests/e2e/mcp_e2e.py "evidence/agent-scope-$stamp/production"
 ```
 
-Management credentials remain outside the repository in `~/.config/thegram-vault/logto-apps.json`. Each `agent-scope-report.json` includes checks, credential-redacted exact MCP and scope-API exchanges, cleanup results, the advertised MCP audience, and explicit coverage gaps. The suite verifies default-only visibility, hidden new vaults, read-only denials, write sync, delete-level write inclusion, and immediate disconnect using the same unexpired MCP token/session. **It cannot test document-delete enforcement through MCP**; that criterion is recorded as unreachable, not passed. Server unit tests cover enforcement. The next endpoint currently advertises the production MCP audience `https://vault.thegram.one/mcp`; the report records this separate isolation risk rather than pretending the audiences are independent.
+Management credentials remain outside the repository in `~/.config/thegram-vault/logto-apps.json`. Each `agent-scope-report.json` includes checks, credential-redacted exact MCP and scope-API exchanges, cleanup results and the advertised MCP audience. The suite verifies default-only visibility, hidden new vaults, read-only denials, write sync, that a write grant refuses `gram_delete` while a delete grant trashes and `gram_restore` restores, delete-level write inclusion, and immediate disconnect using the same unexpired MCP token/session. The next endpoint currently advertises the production MCP audience `https://vault.thegram.one/mcp`; the report records this separate isolation risk rather than pretending the audiences are independent.
 
 ## Release
 
