@@ -106,7 +106,7 @@
         "demo_recording_url": "https://thegram.one/review/openai/"
       },
       "publication": {
-        "release_notes": "2.0.1: Lockstep release with Thegram 2.0.1, where every document shows one dashboard for its type. The plugin's tools, skill and MCP/OAuth configuration are unchanged from 2.0.0.",
+        "release_notes": "2.0.1: Every document shows one dashboard for its type (project@1 Project Tracker, schedule@1 Journal, knowledge@1 Knowledge). The bundled skill now picks one template per new document, edits only declared documents on the dashboard, treats ~project@1 as a read-only recommendation and declares a template only when the user asks. Tools and MCP/OAuth configuration are unchanged.",
         "translations": {
           "ko-KR": {
             "subtitle": "목적별 .gram 하나, 사람과 AI의 기억",

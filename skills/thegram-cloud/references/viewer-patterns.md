@@ -9,7 +9,7 @@ These public references illustrate authoring patterns. They are not private proj
 | [Sales](https://viewer.thegram.one/samples/sales.gram) | Decision evolution: `dec-halden-1yr` becomes superseded, its replacement uses `replaces`, and `ev-halden-deal-desk` implements the new deal choice. Metrics identify denominator, window and measurement source. |
 | [Finance](https://viewer.thegram.one/samples/finance.gram) | Close/payment controls, component boundaries, active work and stable metric histories. Prose explains the process around structured facts. |
 
-The sources use standalone record placements, inline mentions, explicit links, filtered task/risk collections, document dashboard views and Mermaid flowcharts. Use the applicable pattern only after checking the current profile and target renderer. The current cloud rich profile lists collection **list/table**, even though its common example mentions `board`. Dashboard, sparklines, Mermaid and the revision slider belong to supporting viewers/apps, not to the storage transport.
+The sources use standalone record placements, inline mentions, explicit links, filtered task/risk collections, a document dashboard and Mermaid flowcharts. Use the applicable pattern only after checking the current profile and target renderer. The current cloud rich profile lists collection **list/table**, even though its common example uses collection `view=board`. The dashboard, sparklines, Mermaid and the revision slider belong to supporting viewers/apps, not to the storage transport.
 
 The Sales Slack Connect choice is accepted but lacks an implementing-event link. It does not establish an implementation date or verified execution. The Deal Desk event demonstrates the stronger relationship needed for implementation.
 

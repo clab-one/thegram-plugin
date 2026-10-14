@@ -14,7 +14,7 @@ The separate `clab-one/thegram-mcp` package (`thegram-memory`) is a Node integra
 
 | Tool | Arguments and result to use |
 | --- | --- |
-| `gram_brief` | `{path}` or `{folder}`; `docs` rows are path/title/rev/hash/recorded/effective, then the template (`project@1` declared, `~project@1` suggested), plus open work and `next`. |
+| `gram_brief` | `{path}` or `{folder}`; `docs` rows are path/title/rev/hash/recorded/effective, then the template (`project@1` declared, `~project@1` Core's recommendation for an undeclared document, whose dashboard is read-only), plus open work and `next`. |
 | `gram_changes` | `{path or folder, since}`; exclusive recording-time cursor. A requested historical window starts at an explicit ISO 8601 UTC `since` computed from the request time, not `gram_brief.next`; follow each `more`. One document also takes `since_revision`. |
 | `gram_recall` | `{query, folder, mode?, type?, from?, to?, date?, top_k?, cursor?}`; `path#id` hits and document section hits. `scope` is exact `s` tag membership, not section/type. |
 | `gram_context` | `{ids:[{path,entity}], fields:[...]}`; selected fields, links and bounded rich text. Request `observed` explicitly for metric dates; the default field set omits it. |
@@ -72,6 +72,6 @@ Collection examples supported by the current rich profile:
 [[*]]{type=task status=active view=list}
 ```
 
-Only collection `list` and `table` are listed as supported; item `view` is ignored. Dashboard is a document-level field (`set doc view dashboard`) interpreted by supporting apps. Desktop metric series use the stable metric entity's numeric `value`, `unit` and `observed` history; use plain `-?digits[.digits]`, no comma, unit or percent sign in `value`. Changed units separate the series. Desktop goal progress counts same-document tasks linked to a goal, excluding superseded tasks; use meaningful `part-of` goal links, not decorative links.
+Only collection `list` and `table` are listed as supported; item `view` is ignored. Each document has one dashboard, chosen by Core from its template: declared `project@1` Project Tracker, `schedule@1` Journal and `knowledge@1` Knowledge are editable there; an undeclared document shows its recommended type's dashboard read-only; an unknown template declaration has no dashboard. `set doc view dashboard` opens the document on that dashboard in supporting apps. Desktop metric series use the stable metric entity's numeric `value`, `unit` and `observed` history; use plain `-?digits[.digits]`, no comma, unit or percent sign in `value`. Changed units separate the series. Desktop goal progress counts same-document tasks linked to a goal, excluding superseded tasks; use meaningful `part-of` goal links, not decorative links.
 
 Mermaid `flowchart`/`graph` blocks are supported by the inspected desktop renderer; other diagram kinds remain source. Labeled `-->` edges are supported there, while labeled `==>`/`-.->` can be dropped. Cloud storage accepting a code block does not prove a particular host renders it. Validate the target renderer and retain readable prose when rendering is unavailable.

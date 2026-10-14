@@ -2,7 +2,8 @@
 
 ## 2.0.1 — 2026-10-14
 
-- Lockstep release with Thegram 2.0.1, where every document shows one dashboard for its type. The plugin's tools, bundled skill and MCP/OAuth configuration are unchanged from 2.0.0.
+- Thegram 2.0.1 shows one dashboard per document type: `project@1` Project Tracker, `schedule@1` Journal, `knowledge@1` Knowledge. The bundled skill, contracts and README now say so: pick one template for a new document with `gram_create {template}`; only a declared document is editable on its dashboard; a document without a template shows Core's recommended dashboard (`~project@1`) read-only, and the agent declares a template only when the user asks; an unknown template declaration has no dashboard. Wording that suggested several screens or boards per template is removed.
+- Tools, MCP/OAuth configuration, package identity and review cases are unchanged from 2.0.0.
 
 ## 2.0.0 — 2026-10-14
 
