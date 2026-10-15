@@ -7,7 +7,7 @@ description: Use Thegram cloud gram_* MCP tools as purpose-based memory shared b
 
 Help people and AI continue a plan, research topic, project or other ongoing purpose without rebuilding its context. Keep a readable account of the purpose, current state, sourced reasons, changes and unresolved work. Prose, typed records, meaningful relations and revision history belong to the same `.gram` file; supported Thegram apps present views of that source rather than separate documents to maintain.
 
-This is the cloud plugin's single memory workflow for **dot** and other AI assistants working with people. Use the current connection's `gram_*` tools, including connector-prefixed names when the host exposes them that way. `https://vault.thegram.one/mcp` uses the person's OAuth account and works without a running Mac. The separate desktop `thegram-memory` plugin (`clab-one/thegram-mcp`) is not part of this package.
+This is the cloud plugin's single memory workflow for **dot** and other AI assistants working with people. Use the current connection's `gram_*` tools, including connector-prefixed names when the host exposes them that way. `https://vault.thegram.one/mcp` uses the person's OAuth account and works without a running Mac. The separate `thegram-memory` plugin from `clab-one/thegram-mcp` connects coding agents to the same Cloud MCP with scoped API keys and injects project context; it is not installed by this OAuth package.
 
 ## Scope and lifecycle
 

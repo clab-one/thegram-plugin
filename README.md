@@ -23,9 +23,9 @@ Manage access and disconnect agents in **Settings → Connected agents** at http
 
 **Reviewer handling:** `AGENT_SCOPE_DENIED` is a tool error, not a successful empty result or a save receipt. Stop the denied operation, explain which requested access is blocked, and give the settings URL. Do not retry unchanged, switch credentials, copy to another mount, or report success. The user must change the scope in their cookie-authenticated settings session; agent bearer tokens cannot manage grants. After an authorized scope change, rediscover mounts and obtain fresh revision/hash before retrying the original authorized operation. Disconnecting clears access immediately, including still-unexpired tokens and existing MCP sessions; reconnecting is a separate user action.
 
-The current MCP tool set has **no document-delete tool**. A delete-level grant includes write but does not add a deletion tool. Deleting records with `gram_patch` is a document edit, not proof of document-delete permission. API-audience tokens represent an app user (`KindBearer`), not an MCP agent (`KindAgent`); API deletion with those tokens cannot verify agent delete enforcement.
+Discover supported tools from the running MCP server; a grant never creates a capability the server does not offer. Coding-agent API keys are `KindAgent` credentials confined to MCP and their explicit scopes. Logto API-audience tokens represent an app user (`KindBearer`), not an MCP agent; native API responses do not establish MCP agent permissions.
 
-[`clab-one/thegram-mcp`](https://github.com/clab-one/thegram-mcp) owns the separate **thegram-memory** desktop integration. Its Node hooks/adapters, repository-folder mapping, local MCP proxy and injected brief require the running Mac app. This repository owns the remote cloud plugin and its distribution; installing this package does not install that local integration.
+[`clab-one/thegram-mcp`](https://github.com/clab-one/thegram-mcp) owns **thegram-memory**, the coding-agent integration for Claude Code, Codex, OpenCode and OMP. Version 3 uses a scoped API key with the same Cloud MCP, preserves repository-specific briefs and outcome reminders, and requires no desktop app or DMG. This repository owns the OAuth cloud plugin and skill for ChatGPT and Claude; API keys do not replace those OAuth connections.
 
 ## Install with the bundled skill
 

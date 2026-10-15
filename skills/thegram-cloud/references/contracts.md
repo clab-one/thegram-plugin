@@ -8,7 +8,7 @@ The cloud package uses Streamable HTTP at `https://vault.thegram.one/mcp` with O
 
 The server may create a default vault when an account has no writable vault during discovery; discovery does not authorize the agent to create memory records or capture other sources. `CONSENT_REQUIRED` and `PROVIDER_AUTH_REQUIRED` require the user's sign-up/reconnection flow. Preserve the requested storage destination.
 
-The separate `clab-one/thegram-mcp` package (`thegram-memory`) is a Node integration for the running Mac app (hooks, a local Unix-socket MCP proxy, repository-name folders and an injected brief); those are not cloud features. Local folder writes may have no `sync`; cloud successful writes report `sync.state: synced`. Cloud semantic search uses the desktop model and ranking; rendering features do not transfer to cloud.
+The separate `clab-one/thegram-mcp` package (`thegram-memory`, version 3+) connects coding agents to this Cloud MCP with scoped API keys. Its Node hooks inject a brief for one `@mounts/<vault-id>/<repository>.gram` document; worktrees share it. No desktop app or DMG is required, and local-only files are not exposed or silently migrated. ChatGPT and Claude continue to use OAuth. Successful Cloud writes report `sync.state: synced`. Cloud semantic search uses the desktop model and ranking; rendering features do not transfer to cloud.
 
 ## Selective reads
 
