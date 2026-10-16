@@ -25,11 +25,21 @@ Manage access and disconnect agents in **Settings → Connected agents** at http
 
 Discover supported tools from the running MCP server; a grant never creates a capability the server does not offer. Coding-agent API keys are `KindAgent` credentials confined to MCP and their explicit scopes. Logto API-audience tokens represent an app user (`KindBearer`), not an MCP agent; native API responses do not establish MCP agent permissions.
 
-[`clab-one/thegram-mcp`](https://github.com/clab-one/thegram-mcp) owns **thegram-memory**, the coding-agent integration for Claude Code, Codex, OpenCode and OMP. Version 3 uses a scoped API key with the same Cloud MCP, preserves repository-specific briefs and outcome reminders, and requires no desktop app or DMG. This repository owns the OAuth cloud plugin and skill for ChatGPT and Claude; API keys do not replace those OAuth connections.
+[`clab-one/thegram-mcp`](https://github.com/clab-one/thegram-mcp) owns **thegram-memory**, the coding-agent integration for Claude Code, Codex, OpenCode and OMP. Version 3.1 uses a scoped API key with the same Cloud MCP and requires no desktop app or DMG. Its `skills/thegram-memory/` is the canonical workflow. This repository imports that committed directory, pins every normalized file hash in `skill-source.lock.json` and retains the cloud skill's existing name `thegram-cloud`. Only that frontmatter name differs; the workflow and references are shared. API keys do not replace the ChatGPT or Claude OAuth connections.
 
 ## Install with the bundled skill
 
-The [versioned release ZIP](https://github.com/clab-one/thegram-plugin/releases) is the portable plugin package for supported ChatGPT/Codex directory import: root `plugin.json`, `mcp.json`, `skills/`, assets and cloud-client compatibility files. Agent Plugins clients discover the skill at `skills/thegram-cloud/SKILL.md`; references and synthetic lifecycle examples ship in that same skill folder. A directory import and an end-user installation are separate steps. Availability or approval in a public directory is not established merely by publishing a GitHub release.
+Choose the native ZIP for your host from the [versioned releases](https://github.com/clab-one/thegram-plugin/releases):
+
+| Client | ZIP | Connection |
+| --- | --- | --- |
+| ChatGPT | `thegram-chatgpt-2.0.5.zip` | Existing registered Thegram app and OAuth |
+| Claude | `thegram-claude-2.0.5.zip` | Remote Thegram MCP and OAuth |
+| Local coding agents | `clab-one/thegram-mcp` 3.1 | Scoped API key, no desktop app |
+
+The ChatGPT ZIP contains `.codex-plugin/plugin.json`, the registered app mapping `.app.json`, `.mcp.json`, `skills/` and assets. The Claude ZIP contains `.claude-plugin/plugin.json`, `.mcp.json`, the same skill and assets; it does not include the OpenAI app mapping. Both retain the plugin name `thegram-cloud`, the MCP server name `thegram` and `https://vault.thegram.one/mcp`. A ZIP contains no account credentials: first use still requires the host's OAuth consent. Update an existing installation through that host's plugin update/upload-new-version route, not by creating a different connection.
+
+Do not use the old generic `thegram-cloud-2.0.4.zip` as a native end-user installer. Its failed ChatGPT upload was reported by the user; no server-side rejection reason was available. Publishing a correctly structured ZIP, native CLI parser checks and successful account/UI installation are separate evidence. The source root's portable manifest remains for directory metadata; the release builder emits only the explicitly selected native host format.
 
 For the step-by-step connection flow, see [the install guide](https://thegram.one/install/#chatgpt) and its [agent-readable guide](https://thegram.one/install/chatgpt.md). Sign in at [Thegram Cloud](https://vault.thegram.one), finish sign-up, and keep OAuth when connecting. First sight grants write to the owned default Thegram vault only. Connect Drive in **Settings → Connections**, then explicitly allow this agent in **Settings → Connected agents** when needed.
 
@@ -42,29 +52,47 @@ The English [reviewer guide](review/reviewer-guide.md) defines five positive and
 Creating a custom MCP server at `https://vault.thegram.one/mcp` supplies tools but **does not automatically install this repository's skill**. To add/update it through that existing plugin's real packaging route:
 
 1. On the plugin page, download its ZIP through **⋯ → Download plugin ZIP**.
-2. Run `scripts/chatgpt-package.sh /path/to/downloaded-plugin.zip 2.0.4 /path/to/thegram-private-2.0.4.zip` in this repository. Use a version higher than that private plugin's current version.
+2. Run `scripts/chatgpt-package.sh /path/to/downloaded-plugin.zip 2.0.5 /path/to/thegram-private-2.0.5.zip` in this repository. Use a version higher than that private plugin's current version.
 3. Choose **⋯ → Upload new version** and upload the generated ZIP to the same plugin.
 4. Verify the host lists `thegram-cloud` with the new description and can load its references. Then call `gram_projects` and a relevant `gram_brief` to verify connection separately.
 
-The updater preserves the exported plugin's identity, app dependency, OAuth/connection configuration, unknown metadata, unrelated skills and assets. It replaces only the owned `thegram-cloud` folder, updates version and merges the skill-discovery route. It does not re-create the plugin or deploy a server. Disconnecting the plugin in the host revokes its use there.
+The updater preserves the exported plugin's identity, app dependency, OAuth/connection configuration, unknown metadata, unrelated skills and assets. It replaces only the owned `thegram-cloud` folder, updates version and merges the skill-discovery route. It does not re-create the plugin or deploy a server. A private custom plugin can have a different registered app ID: update its own export rather than replacing its identity with the public ChatGPT ZIP. Claude native exports can use `python3 scripts/package_plugin.py private --host claude --help` and the same preservation rules. Disconnecting the plugin in the host revokes its use there.
 
 For other MCP clients, use the same remote endpoint and OAuth discovery. If a client does not support plugin skill loading, explicitly load the [skill](skills/thegram-cloud/SKILL.md) and its referenced resources as agent instructions; connecting tools alone is not equivalent to installing the package.
 
-## Connect Claude with the remote MCP server
+## Install the Claude OAuth plugin
 
-In Claude **Settings → Connectors**, add a custom connector named **Thegram** with `https://vault.thegram.one/mcp`. Keep **Sign in now** and **Use Claude’s published identity** (CIMD), then complete Thegram OAuth and authorize only the intended vaults. Verify the connection by listing accessible projects and reading a relevant memory.
+Upload `thegram-claude-2.0.5.zip` through Claude's plugin upload flow. For later skill releases update the same `thegram-cloud` plugin, keeping the `thegram` MCP binding and OAuth connection. The ZIP carries both the bundled skill and remote MCP configuration. Complete OAuth only when Claude requires first connection or renewed consent; no API key belongs in this package.
 
-A remote connector supplies the MCP tools; it does not install the bundled skill or the Claude Code plugin. The Connectors Directory submission is separate from this package’s release and from a private custom connection.
+If using **Settings → Connectors** independently, add **Thegram** at `https://vault.thegram.one/mcp`, keep **Sign in now** and **Use Claude’s published identity** (CIMD), then grant only the intended vaults. A connector alone supplies tools, not the bundled skill. The Connectors Directory submission is separate from ZIP release or private installation.
+
+Shared instructions do not imply identical host hooks: Chat does not run Claude Code/Cowork hooks. The workflow is the common skill; local lifecycle reminders are host adapters.
 
 ## Validate and package
 
 ```sh
 python3 -m unittest discover -s tests -p 'test_*.py' -v
-python3 scripts/package_plugin.py build --output /tmp/thegram-cloud-2.0.4.zip
-python3 scripts/package_plugin.py validate /tmp/thegram-cloud-2.0.4.zip --expected-version 2.0.4
+python3 scripts/sync_skill.py --source /path/to/thegram-mcp
+python3 scripts/sync_skill.py --check
+python3 scripts/package_plugin.py build --host chatgpt --output /tmp/thegram-chatgpt-2.0.5.zip --expected-version 2.0.5
+python3 scripts/package_plugin.py validate /tmp/thegram-chatgpt-2.0.5.zip --host chatgpt --expected-version 2.0.5
+python3 scripts/package_plugin.py build --host claude --output /tmp/thegram-claude-2.0.5.zip --expected-version 2.0.5
+python3 scripts/package_plugin.py validate /tmp/thegram-claude-2.0.5.zip --host claude --expected-version 2.0.5
 ```
 
-The offline packaging tests use synthetic exported ZIPs to check preservation, discovery, owned-folder replacement, references and unsafe-archive rejection. No OAuth tokens or personal files are required. The CI workflow runs these checks for the exact source commit.
+Change and commit shared workflow files in the canonical coding-agent repository before syncing. `sync_skill.py` rejects uncommitted skill files; release builds reject hash drift from the pinned import. The offline packaging tests check both native formats, reproducible archives, private identity/connection preservation, discovery, owned-folder replacement, references and unsafe-archive rejection. No OAuth tokens or personal files are required. CI checks the exact source commit and builds both host ZIPs; it does not establish actual account/UI installation or OAuth consent.
+
+With the `claude` and `codex` CLIs installed, run the native-parser E2E in a new, task-owned workspace:
+
+```sh
+python3 tests/e2e/host_packages.py --agents /path/to/thegram-mcp \
+  --workspace /tmp/thegram-host-check-unique --output /path/to/evidence/native-host-e2e.json
+```
+
+It builds both real ZIPs, compares their complete shared workflow with the canonical source, runs Claude's strict validator and
+discovers the OpenAI package through Codex's native parser. Isolated profiles contain no credentials; the driver does not install
+into a real account, invoke a model, or start OAuth. It retains the command outputs and archive hashes in the JSON report.
+Preserve that report and required ZIPs before removing the workspace; successful parser checks do not prove ChatGPT/Claude UI installation.
 
 For cloud-wrapper lifecycle behavior, use [tests/offline](tests/offline/README.md) with the matching vault source and native Core binary. It exercises the shipped fictional payloads in temporary storage. This verifies the API layer independently of production mounts and does not establish end-user installation, provider/OAuth behavior or UI rendering.
 
@@ -86,7 +114,7 @@ Management credentials remain outside the repository in `~/.config/thegram-vault
 
 Follow [CHANGELOG.md](CHANGELOG.md). Bump `version` together in root `plugin.json` and `.claude-plugin/plugin.json`; there is no npm version for this cloud package. Keep one `thegram-cloud` skill rather than adding a competing memory entry point.
 
-Build and validate `thegram-cloud-<version>.zip`, commit/push the source, and publish tag `v<version>` on the exact commit with that ZIP attached. Check the exact commit's validation run and download/revalidate the published asset. Keep host-install and directory-publication claims separate from package checks. This release process publishes source and a package; it does not deploy the cloud server or change OAuth scopes, credentials, access or production settings.
+Build and validate `thegram-chatgpt-<version>.zip` and `thegram-claude-<version>.zip`, commit/push the canonical source and cloud source, then publish tag `v<version>` on the exact cloud commit with both ZIPs attached. Check the exact commit's validation run and download/revalidate each published asset. Never publish an ambiguous generic ZIP as the native installer. Keep host-install and directory-publication claims separate from package checks. This process does not deploy the cloud server or change OAuth scopes, credentials, access or production settings.
 
 ## Current limits
 

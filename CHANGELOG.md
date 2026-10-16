@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.0.5 — 2026-10-16
+
+- Release separate native `thegram-chatgpt-2.0.5.zip` and `thegram-claude-2.0.5.zip`; remove the ambiguous generic release-build route. ChatGPT includes its native manifest and registered `.app.json` mapping; Claude includes its own native manifest without OpenAI bindings.
+- Import the committed `thegram-mcp` 3.1 skill and references as the one workflow source. Keep existing host skill names; normalize only that name when pinning every file hash. Builds reject uncommitted canonical imports and drift from the pinned workflow.
+- Keep OAuth for ChatGPT and Claude and scoped API keys for coding agents, all against `https://vault.thegram.one/mcp`. Preserve the `thegram-cloud` plugin identity and `thegram` server binding; ZIPs contain no credentials and do not bypass first OAuth consent.
+- Extend the private-export updater to Claude as well as ChatGPT, preserving its original identity, app bindings, connection settings and unrelated payload while replacing only owned skill files and version.
+- Native CLI/package validation is not an actual ChatGPT or Claude account/UI installation check. No server, OAuth scope, credential or production setting is changed by this release.
+
 ## 2.0.4 — 2026-10-16
 
 - A record of the wrong kind, such as a commit written as a task, is treated as a mistake rather than history: the skill reports it and, with the user's consent, keeps the fact as an `event` and removes the wrong record. Changing records to move a number stays forbidden.
