@@ -1,11 +1,17 @@
 {
   "name": "thegram-cloud",
-  "version": "2.0.8",
+  "displayName": "Thegram",
+  "version": "2.0.9",
   "description": "Organize plans, notes, tasks, ideas and knowledge in structured .gram files shared by people and supported AI assistants. Retrieve relevant records, relationships and revision history from authorized Thegram vaults or connected Google Drive. Save only within the user's authorized scope and destination, then verify the result.",
   "author": {
     "name": "Roy Kim"
   },
+  "homepage": "https://thegram.one",
   "repository": "https://github.com/clab-one/thegram-plugin",
+  "icon": "./assets/logo.png",
+  "supportUrl": "https://github.com/clab-one/thegram-plugin/issues",
+  "privacyPolicyUrl": "https://vault.thegram.one/legal/privacy",
+  "termsOfServiceUrl": "https://vault.thegram.one/legal/terms",
   "license": "UNLICENSED",
   "keywords": [
     "thegram",

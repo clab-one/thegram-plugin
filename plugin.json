@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "thegram-cloud",
-  "version": "2.0.8",
+  "version": "2.0.9",
   "description": "Organize plans, notes, tasks, ideas and knowledge in structured .gram files shared by people and supported AI assistants. Retrieve relevant records, relationships and revision history from authorized Thegram vaults or connected Google Drive. Save only within the user's authorized scope and destination, then verify the result.",
   "author": {
     "name": "Roy Kim",
@@ -122,7 +122,7 @@
         "demo_recording_url": "https://thegram.one/review/openai/"
       },
       "publication": {
-        "release_notes": "2.0.8: The listing's AI access section now refers to compatible AI assistants and coding agents instead of naming specific AI products. MCP, OAuth and skill content are unchanged.",
+        "release_notes": "2.0.9: The Claude directory listing now declares its display name, icon, support, privacy policy and terms links. MCP, OAuth and skill content are unchanged.",
         "translations": {
           "ko-KR": {
             "subtitle": "당신의 모든 생각이 이어지는 곳.",
