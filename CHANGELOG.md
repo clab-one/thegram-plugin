@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.3 — 2026-10-16
+
+- Dashboard: the skill now says what the Project Tracker counts. Progress, open tasks and the task board count `task` records (cancelled/superseded stay in the total); goal rings count tasks linked `part-of` the goal; risks count by status; a metric chart needs repeated `value`/`observed` updates on one metric; revision history is recording time. Planned work is a `task` closed with `completed` + `done`; a commit, release or deploy is an `event`. Adding, splitting, relabelling or completing records to move a number is forbidden; a misleading number is reported instead.
+- Body: a mention `[label](@id)` sits inside a sentence; body collections render in the document view, not on the dashboard.
+- Tools, MCP/OAuth configuration, package identity and review cases are unchanged from 2.0.2.
+
 ## 2.0.2 — 2026-10-16
 
 - Recording: when saving is authorized, the skill maps each kind of outcome to one linked record (accepted or replaced decision, shipped or verified event, caveat as risk or task, status change with `old`, metric observation) and reads the root project record before the first write. Nothing qualifying means nothing is written.

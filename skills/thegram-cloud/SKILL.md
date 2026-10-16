@@ -24,8 +24,9 @@ When saving is authorized, record each outcome as its own linked record:
 | settled a choice the user stated or accepted | `decision` | Decisions | `part-of` project | `accepted` |
 | replaced an earlier decision | new `decision`, `set x` on the old | Decisions | new `replaces` old | old `superseded` |
 | shipped, executed or verified something | `event` with sourced `at` and `ref` | Log | `implements` its decision, else `part-of` project | — |
-| left a caveat, limitation or follow-up | `risk` or `task` | Plan | `related` to what it concerns | `open` |
-| finished or resolved a recorded item | `set x` with `old`, link the resolving event | — | `related` | `completed` / `resolved` |
+| started planned work worth tracking | `task` | Plan | `part-of` its goal, else project | `active` |
+| left a caveat, limitation or follow-up | `risk` or `task` | Plan | `related` to what it concerns (a task also `part-of` goal or project) | `open` |
+| finished or resolved a recorded item | `set x` with `old` (task: also `done`), link the resolving event | — | `related` | `completed` / `resolved` |
 | measured a defined quantity | `set value` + `observed` on its metric | — | — | — |
 
 Read the root `project` record (`gram_list {path, select:{type:"project"}}`) before the first write and link new records into it. Nothing qualifies (chatter, unexecuted plans, raw content)? Write nothing and say so.
@@ -85,8 +86,18 @@ A template document takes only its listed `x` values (`project@1`: open decision
 - Separate event time `at`, measurement time `observed`, task deadline `due` and actual recording time/revision. Keep a date-only event date-only; do not guess a clock time or zone. A decision's date comes from its earliest implementing event.
 - Import past facts in the present with their sourced dates. `effective_at` changes historical state selection and needs a full ISO timestamp with a zone; use it only for an authorized, understood change. Do not backdate a whole import, fabricate revisions, replay artificial completion transitions or create chart points to imitate a sample.
 - Reuse one stable metric ID per quantity and definition; record a new observation by updating numeric `value`, unchanged `unit`, `observed` and source evidence together. Do not invent values or times; one observation is one point, and a changed definition or unit needs a separate series or an evidenced conversion.
-- Use record/field mentions for live values rather than repeating numbers in prose. Goal progress is derived by a supporting renderer from linked tasks and their status; never split tasks or change completion to achieve a desired percentage.
-- The current rich profile supports collection `list` and `table`, such as `[[*]]{type=risk status=open view=table}`. Its collection `view=board` example is not proof of board rendering. The dashboard (one per document, chosen by Core as above), sparklines, revision slider and Mermaid are renderer features; verify them on the target host before claiming they work. See [references/viewer-patterns.md](references/viewer-patterns.md) for public examples and limits.
+- Use record/field mentions for live values rather than repeating numbers in prose. A mention `[label](@id)` sits inside a sentence with a label the reader needs there; never append a bare mention after a finished sentence or cell.
+- The Project Tracker summarizes records and never reads commits, events or prose as progress. Record facts truthfully and let the numbers follow; never add, split, relabel or complete records to move a number, and report a misleading number instead.
+
+  | On screen | Counts | Record it this way |
+  | --- | --- | --- |
+  | Progress, open tasks, task board | every `task` in the document: `completed` ÷ all tasks; cancelled/superseded stay in the total | A task is planned work, added when decided or started and closed with `completed` + `done`. A commit, release or deploy is an `event`, never a task. A history of events with only open follow-ups correctly shows 0 %. |
+  | Goal ring | tasks linked `part-of` the goal | Link a goal's steps with `part-of`, not `related`; set the goal's own `x` when it is reached. |
+  | Risks | risk records by status | Close a risk with the template's closing status and link the resolving event. |
+  | Metric chart | one series per metric ID, one point per revision that changed `value`/`observed` | One write is one point; bars compare only metrics with the same unit. |
+  | Revision history | revisions by recording time | An import made today stays today. |
+
+- The current rich profile supports collection `list` and `table`, such as `[[*]]{type=risk status=open view=table}`; a collection shows matching records as live cards in the document view, not on the dashboard. Its collection `view=board` example is not proof of board rendering. The dashboard (one per document, chosen by Core as above), sparklines, revision slider and Mermaid are renderer features; verify them on the target host before claiming they work. See [references/viewer-patterns.md](references/viewer-patterns.md) for public examples and limits.
 
 ## Save minimally and verify
 
