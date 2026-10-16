@@ -1,12 +1,16 @@
 # Changelog
 
-## 2.0.5 — 2026-10-16
+## 2.0.6 — 2026-10-16
 
-- Release separate native `thegram-chatgpt-2.0.5.zip` and `thegram-claude-2.0.5.zip`; remove the ambiguous generic release-build route. ChatGPT includes its native manifest and registered `.app.json` mapping; Claude includes its own native manifest without OpenAI bindings.
-- Import the committed `thegram-mcp` 3.1 skill and references as the one workflow source. Keep existing host skill names; normalize only that name when pinning every file hash. Builds reject uncommitted canonical imports and drift from the pinned workflow.
-- Keep OAuth for ChatGPT and Claude and scoped API keys for coding agents, all against `https://vault.thegram.one/mcp`. Preserve the `thegram-cloud` plugin identity and `thegram` server binding; ZIPs contain no credentials and do not bypass first OAuth consent.
-- Extend the private-export updater to Claude as well as ChatGPT, preserving its original identity, app bindings, connection settings and unrelated payload while replacing only owned skill files and version.
-- Native CLI/package validation is not an actual ChatGPT or Claude account/UI installation check. No server, OAuth scope, credential or production setting is changed by this release.
+- Return to the single portable package used through 2.0.4: root `plugin.json` with the OpenAI listing, icons, review cases and publication notes, plus `mcp.json`, `.claude-plugin/` and `.mcp.json`. The OpenAI directory reads its listing from it again; the Claude directory is submitted from the repository's `.claude-plugin/plugin.json` root.
+- Remove the `.app.json` binding; directory ZIP uploads must not include apps.
+- Keep the 2.0.5 shared workflow: `skills/thegram-cloud/` is the pinned import of `thegram-mcp`'s `skills/thegram-memory/`, and builds reject drift.
+- Coding agents continue to use `thegram-mcp` with scoped API keys. No server, OAuth scope, credential or production setting is changed.
+
+## 2.0.5 — 2026-10-16 (withdrawn)
+
+- Split the release into `thegram-chatgpt-2.0.5.zip` and `thegram-claude-2.0.5.zip`. Neither is a valid OpenAI directory upload: without the root `plugin.json` the listing metadata and icons are missing, and the ChatGPT ZIP includes `.app.json`, which directory ZIP uploads do not accept. Do not submit either.
+- Imported the `thegram-mcp` 3.1 skill and references as the one workflow source with pinned file hashes.
 
 ## 2.0.4 — 2026-10-16
 

@@ -2,8 +2,8 @@
 
 from copy import deepcopy
 import importlib.util
-import json
 import hashlib
+import json
 from pathlib import Path
 import stat
 import subprocess
@@ -35,9 +35,7 @@ class PackagingTests(unittest.TestCase):
         self.put("skills/thegram-cloud/references/examples.md", b"Verified fixture examples.\n")
         self.manifest = {
             "name": "thegram-cloud", "version": "1.5.0",
-            "description": "Synthetic Thegram memory plugin.",
-            "author": {"name": "Fixture"},
-            "extensions": {"com.openai": {"apps": "./.app.json", "interface": {"logo": "./assets/logo.png"}}},
+            "extensions": {"com.openai": {"interface": {"logo": "./assets/logo.png"}}},
         }
         self.put("plugin.json", package.json_bytes(self.manifest))
         self.put("mcp.json", package.json_bytes({"mcpServers": {"thegram": {
@@ -47,9 +45,6 @@ class PackagingTests(unittest.TestCase):
         self.put(".claude-plugin/plugin.json", package.json_bytes({"name": "thegram-cloud", "version": "1.5.0"}))
         self.put(".mcp.json", package.json_bytes({"mcpServers": {"thegram": {
             "type": "http", "url": "https://vault.thegram.one/mcp",
-        }}}))
-        self.put(".app.json", package.json_bytes({"apps": {"thegram": {
-            "id": "asdk_app_6acc810ccabc8191acd3f457dc498d43",
         }}}))
         files = {"SKILL.md": (self.root / "skills/thegram-cloud/SKILL.md").read_bytes(),
                  "references/examples.md": (self.root / "skills/thegram-cloud/references/examples.md").read_bytes()}
@@ -264,53 +259,55 @@ class PackagingTests(unittest.TestCase):
                 package.update_private(source, "1.5.0", output, self.root)
             self.assertFalse(output.exists())
 
-    def test_host_packages_exclude_private_files_and_other_host_manifests(self):
-        for name in (".env", "private.zip", "evidence/private.json", "tests/private.json", ".git/config"):
-            self.put(name, b"must not be released")
-        for host, manifest in (("chatgpt", ".codex-plugin/plugin.json"), ("claude", ".claude-plugin/plugin.json")):
-            output = self.directory / (host + ".zip")
-            package.build_package(self.root, output, host, "1.5.0")
-            files = package.read_archive(output)
-            self.assertIn(manifest, files)
-            self.assertNotIn("plugin.json", files)
-            self.assertNotIn("mcp.json", files)
-            self.assertNotIn(".env", files)
-            self.assertNotIn("private.zip", files)
-            self.assertNotIn(".git/config", files)
-            self.assertEqual(package.validate_package(files, host, "1.5.0"), "1.5.0")
-            self.assertEqual(".app.json" in files, host == "chatgpt")
-            self.assertEqual(json.loads(files[".mcp.json"])["mcpServers"]["thegram"],
-                             {"type": "http", "url": "https://vault.thegram.one/mcp"})
+    def test_portable_archive_allowlist_and_fixed_location_discovery(self):
+        for path in (".env", ".app.json", "private.zip", "evidence/private.json", "tests/private.json", ".git/config"):
+            self.put(path, b"must not be released")
+        output = self.directory / "public.zip"
+        package.build_public(self.root, output, "1.5.0")
+        files = package.read_archive(output)
+        self.assertEqual(set(files), {
+            "plugin.json", "mcp.json", ".mcp.json", ".claude-plugin/plugin.json", "assets/logo.png",
+            "skills/thegram-cloud/SKILL.md", "skills/thegram-cloud/references/examples.md",
+        })
+        self.assertEqual(package.validate_public(files, "1.5.0"), "1.5.0")
+        self.assertNotIn("skills", json.loads(files["plugin.json"]))
 
     def test_public_archive_reproducible(self):
-        for host in ("chatgpt", "claude"):
-            first, second = self.directory / (host + "-first.zip"), self.directory / (host + "-second.zip")
-            package.build_package(self.root, first, host)
-            package.build_package(self.root, second, host)
-            self.assertEqual(first.read_bytes(), second.read_bytes())
+        first, second = self.directory / "first.zip", self.directory / "second.zip"
+        package.build_public(self.root, first)
+        package.build_public(self.root, second)
+        self.assertEqual(first.read_bytes(), second.read_bytes())
 
     def test_public_manifest_version_and_identity_mismatch_fail(self):
-        for manifest in ({"name": "other", "version": "1.5.0"}, {"name": "thegram-cloud", "version": "1.4.0"}):
-            self.put(".claude-plugin/plugin.json", package.json_bytes(manifest))
-            with self.subTest(manifest=manifest), self.assertRaises(package.PackageError):
-                package.build_package(self.root, self.directory / "bad.zip", "claude")
+        for compat in ({"name": "other", "version": "1.5.0"}, {"name": "thegram-cloud", "version": "1.4.0"}):
+            self.put(".claude-plugin/plugin.json", package.json_bytes(compat))
+            with self.subTest(compat=compat), self.assertRaises(package.PackageError):
+                package.build_public(self.root, self.directory / "bad.zip")
         with self.assertRaises(package.PackageError):
-            package.build_package(self.root, self.directory / "bad.zip", "chatgpt", "1.6.0")
+            package.build_public(self.root, self.directory / "bad.zip", "1.6.0")
 
-    def test_public_app_binding_must_keep_the_registered_thegram_identity(self):
-        for app in ({"apps": {"other": {"id": "fake-app"}}},
-                    {"apps": {"thegram": {"id": "asdk_app_another"}}},
-                    {"apps": {"thegram": {"id": "asdk_app_6acc810ccabc8191acd3f457dc498d43",
-                                            "access_token": "fake-secret"}}}):
-            self.put(".app.json", package.json_bytes(app))
-            with self.subTest(app=app), self.assertRaises(package.PackageError):
-                package.build_package(self.root, self.directory / "bad.zip", "chatgpt")
+    def test_public_private_fields_and_app_bindings_fail(self):
+        for key in ("skills", "mcpServers", "apps", "interface"):
+            manifest = deepcopy(self.manifest)
+            manifest[key] = None
+            self.put("plugin.json", package.json_bytes(manifest))
+            with self.subTest(key=key), self.assertRaises(package.PackageError):
+                package.build_public(self.root, self.directory / "bad.zip")
+        manifest = deepcopy(self.manifest)
+        manifest["extensions"]["com.openai"]["apps"] = "./private.app.json"
+        self.put("plugin.json", package.json_bytes(manifest))
+        with self.assertRaises(package.PackageError):
+            package.build_public(self.root, self.directory / "bad.zip")
+        self.put("plugin.json", package.json_bytes(self.manifest))
+        self.put(".claude-plugin/plugin.json", package.json_bytes({"name": "thegram-cloud", "version": "1.5.0", "apps": []}))
+        with self.assertRaises(package.PackageError):
+            package.build_public(self.root, self.directory / "bad.zip")
 
     def test_listing_short_description_limit(self):
         self.manifest["extensions"]["com.openai"]["interface"]["shortDescription"] = "x" * 31
         self.put("plugin.json", package.json_bytes(self.manifest))
         with self.assertRaises(package.PackageError):
-            package.build_package(self.root, self.directory / "bad.zip", "chatgpt")
+            package.build_public(self.root, self.directory / "bad.zip")
 
     def test_semver_pre_release_numeric_rules(self):
         for version in ("1.5.0", "1.5.0-rc.1", "1.5.0+build.001"):
@@ -323,31 +320,31 @@ class PackagingTests(unittest.TestCase):
         for data in (b"No frontmatter", skill(body="[missing](references/missing.md)")):
             self.put("skills/thegram-cloud/SKILL.md", data)
             with self.subTest(data=data), self.assertRaises(package.PackageError):
-                package.build_package(self.root, self.directory / "bad.zip", "chatgpt")
+                package.build_public(self.root, self.directory / "bad.zip")
 
     def test_duplicate_owned_skill_identity_fails(self):
         self.put("skills/conflicting/SKILL.md", skill())
         with self.assertRaises(package.PackageError):
-            package.build_package(self.root, self.directory / "bad.zip", "chatgpt")
+            package.build_public(self.root, self.directory / "bad.zip")
 
     def test_credentials_and_private_files_within_allowed_tree_fail(self):
         for name, data in (("assets/config.json", package.json_bytes({"access_token": "fake-secret"})),
                            ("skills/thegram-cloud/.env", b"private"), ("assets/private.token", b"private")):
             self.put(name, data)
             with self.subTest(name=name), self.assertRaises(package.PackageError):
-                package.build_package(self.root, self.directory / "bad.zip", "chatgpt")
+                package.build_public(self.root, self.directory / "bad.zip")
             (self.root / name).unlink()
 
-    def test_native_endpoint_credentials_fail(self):
-        self.put(".mcp.json", package.json_bytes({"mcpServers": {"thegram": {
-            "type": "http", "url": "https://vault.thegram.one/mcp", "headers": {"X-Key": "fake"},
+    def test_portable_endpoint_credentials_fail(self):
+        self.put("mcp.json", package.json_bytes({"mcpServers": {"thegram": {
+            "type": "streamable-http", "url": "https://vault.thegram.one/mcp", "headers": {"X-Key": "fake"},
         }}}))
         with self.assertRaises(package.PackageError):
-            package.build_package(self.root, self.directory / "bad.zip", "chatgpt")
+            package.build_public(self.root, self.directory / "bad.zip")
 
     def test_build_ignores_generated_finder_metadata(self):
         self.put("skills/.DS_Store", b"generated Finder metadata")
-        output = package.build_package(self.root, self.directory / "with-finder-metadata.zip", "chatgpt")
+        output = package.build_public(self.root, self.directory / "with-finder-metadata.zip")
         with zipfile.ZipFile(output) as archive:
             self.assertNotIn("skills/.DS_Store", archive.namelist())
 
@@ -357,11 +354,11 @@ class PackagingTests(unittest.TestCase):
         link = self.root / "assets/link"
         link.symlink_to(target)
         with self.assertRaises(package.PackageError):
-            package.build_package(self.root, self.directory / "bad.zip", "chatgpt")
+            package.build_public(self.root, self.directory / "bad.zip")
         link.unlink()
         link.symlink_to(self.root / "skills", target_is_directory=True)
         with self.assertRaises(package.PackageError):
-            package.build_package(self.root, self.directory / "bad.zip", "chatgpt")
+            package.build_public(self.root, self.directory / "bad.zip")
     def test_private_skill_source_rejects_symlink_ancestor(self):
         separate_root = self.directory / "symlink-repo"
         separate_root.mkdir()
@@ -373,34 +370,20 @@ class PackagingTests(unittest.TestCase):
     def test_cli_build_and_validate_work_offline(self):
         output = self.directory / "cli.zip"
         command = [sys.executable, str(REPOSITORY / "scripts/package_plugin.py")]
-        built = subprocess.run(command + ["build", "--host", "chatgpt", "--root", str(self.root), "--output", str(output),
+        built = subprocess.run(command + ["build", "--root", str(self.root), "--output", str(output),
                                            "--expected-version", "1.5.0"], capture_output=True, text=True)
         self.assertEqual(built.returncode, 0, built.stderr)
-        validated = subprocess.run(command + ["validate", str(output), "--host", "chatgpt", "--expected-version", "1.5.0"],
+        validated = subprocess.run(command + ["validate", str(output), "--expected-version", "1.5.0"],
                                    capture_output=True, text=True)
         self.assertEqual(validated.returncode, 0, validated.stderr)
-
-    def test_claude_private_update_preserves_identity_connection_and_unrelated_payload(self):
-        files = self.private_files()
-        manifest = files.pop(".codex-plugin/plugin.json")
-        files[".claude-plugin/plugin.json"] = manifest
-        source = self.zip("claude-private.zip", files)
-        output = self.directory / "claude-updated.zip"
-        package.update_private(source, "1.5.0", output, self.root, host="claude")
-        updated = package.read_archive(output)
-        expected = json.loads(manifest)
-        expected["version"] = "1.5.0"
-        self.assertEqual(json.loads(updated[".claude-plugin/plugin.json"]), expected)
-        for name, data in files.items():
-            if name != ".claude-plugin/plugin.json" and not name.startswith(package.SKILL_ROOT + "/"):
-                self.assertEqual(updated[name], data)
+        self.assertIn("bundled skill and references resolve", validated.stdout)
 
     def test_cli_refuses_drift_from_pinned_shared_workflow_without_output(self):
         self.put("skills/thegram-cloud/SKILL.md", skill(body="Changed separately from the shared workflow."))
         output = self.directory / "drifted.zip"
         result = subprocess.run([sys.executable, str(REPOSITORY / "scripts/package_plugin.py"),
-                                 "build", "--host", "chatgpt", "--root", str(self.root),
-                                 "--output", str(output)], capture_output=True, text=True)
+                                 "build", "--root", str(self.root), "--output", str(output)],
+                                capture_output=True, text=True)
         self.assertNotEqual(result.returncode, 0)
         self.assertFalse(output.exists())
 

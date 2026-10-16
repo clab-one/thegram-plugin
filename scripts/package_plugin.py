@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
-"""Build native host ZIPs and preserve identity when updating existing exports."""
+"""Build public plugin archives or safely overlay a downloaded private plugin.
+
+No extraction, network access or external Python packages are required. Public
+archives use the Agent Plugins fixed-location layout. Private ChatGPT downloads
+keep their .codex-plugin manifest, app bindings and all unrelated payload bytes.
+"""
 
 from __future__ import annotations
 
@@ -20,8 +25,8 @@ import zipfile
 PLUGIN_NAME = "thegram-cloud"
 SKILL_ROOT = "skills/thegram-cloud"
 PRIVATE_MANIFEST = ".codex-plugin/plugin.json"
-HOST_MANIFESTS = {"chatgpt": PRIVATE_MANIFEST, "claude": ".claude-plugin/plugin.json"}
-THEGRAM_APP_ID = "asdk_app_6acc810ccabc8191acd3f457dc498d43"
+PUBLIC_FILES = ("plugin.json", "mcp.json", ".mcp.json")
+PUBLIC_TREES = ("skills", "assets", ".claude-plugin")
 VERSION_RE = re.compile(r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$")
 MARKDOWN_LINK_RE = re.compile(r"!?\[[^\]\n]*\]\(([^\s)]+)(?:\s+[^)]*)?\)")
 MAX_FILES = 10000
@@ -259,6 +264,16 @@ def no_credentials(value: object, path: str) -> None:
             raise PackageError(f"Credential-bearing URL is forbidden in public package: {path}")
 
 
+def no_apps(value: object, path: str) -> None:
+    if isinstance(value, dict):
+        for key, child in value.items():
+            if key == "apps" and child is not None:
+                raise PackageError(f"App bindings belong only in a private download: {path}.apps")
+            no_apps(child, path + "." + key)
+    elif isinstance(value, list):
+        for child in value:
+            no_apps(child, path)
+
 
 def public_server(files: dict[str, bytes], name: str) -> dict:
     servers = load_json(files, name).get("mcpServers")
@@ -267,44 +282,49 @@ def public_server(files: dict[str, bytes], name: str) -> dict:
     return servers["thegram"]
 
 
-def validate_package(files: dict[str, bytes], host: str, expected_version: str | None = None) -> str:
-    if host not in HOST_MANIFESTS:
-        raise PackageError(f"Unsupported plugin host: {host}")
+def validate_public(files: dict[str, bytes], expected_version: str | None = None) -> str:
     check_file_tree(files)
-    manifest_path = HOST_MANIFESTS[host]
-    allowed_files = {manifest_path, ".mcp.json"}
-    if host == "chatgpt":
-        allowed_files.add(".app.json")
     for name in files:
-        if name not in allowed_files and not name.startswith(("skills/", "assets/")):
-            raise PackageError(f"Not allowlisted for a {host} package: {name}")
-        if name not in allowed_files and any(part.startswith(".") or part == "__pycache__" for part in name.split("/")):
+        if name not in PUBLIC_FILES and not any(name.startswith(tree + "/") for tree in PUBLIC_TREES):
+            raise PackageError(f"Not allowlisted for a public release: {name}")
+        if any(part.startswith(".") or part == "__pycache__" for part in name.split("/")
+               if part not in (".claude-plugin", ".mcp.json")):
             raise PackageError(f"Hidden/private file is forbidden in a public release: {name}")
         if name.endswith((".token", ".pyc", ".zip")):
             raise PackageError(f"Private/generated file is forbidden in a public release: {name}")
         if name.endswith(".json"):
             no_credentials(load_json(files, name), name)
-    manifest = load_json(files, manifest_path)
+    manifest = load_json(files, "plugin.json")
+    for key in ("skills", "mcpServers", "apps", "interface"):
+        if key in manifest:
+            raise PackageError(f"Private/nonportable manifest field is forbidden at portable root: {key}")
+    no_apps(manifest, "plugin.json")
     if manifest.get("name") != PLUGIN_NAME:
-        raise PackageError("Cloud plugin identity must remain thegram-cloud")
+        raise PackageError("Portable plugin identity must remain thegram-cloud")
     version = check_version(manifest.get("version"))
     if expected_version is not None and version != expected_version:
         raise PackageError(f"Version {version} does not match expected {expected_version}")
-    if manifest.get("skills") != "./skills/" or manifest.get("mcpServers") != "./.mcp.json":
-        raise PackageError("The native manifest must discover bundled skills and the existing MCP server")
+    # Agent Plugins 1.0 loads skills/ and mcp.json at fixed paths. No private
+    # .codex-plugin fields are injected into the portable root manifest.
     validate_skill_files(files, ["skills"])
-    if public_server(files, ".mcp.json") != {"type": "http", "url": "https://vault.thegram.one/mcp"}:
-        raise PackageError("The existing OAuth MCP endpoint/type changed or includes private settings")
-    if host == "chatgpt":
-        if manifest.get("apps") != "./.app.json":
-            raise PackageError("ChatGPT must retain the registered Thegram app mapping")
-        if load_json(files, ".app.json") != {"apps": {"thegram": {"id": THEGRAM_APP_ID}}}:
-            raise PackageError("ChatGPT app mapping must retain the registered Thegram identity")
-    elif "apps" in manifest:
-        raise PackageError("A Claude package must not include ChatGPT app bindings")
-    interface = manifest.get("interface", {})
+    server = public_server(files, "mcp.json")
+    if server != {"type": "streamable-http", "url": "https://vault.thegram.one/mcp"}:
+        raise PackageError("Portable Thegram endpoint/type changed or includes private settings")
+    if ".claude-plugin/plugin.json" in files:
+        compat = load_json(files, ".claude-plugin/plugin.json")
+        no_apps(compat, ".claude-plugin/plugin.json")
+        if compat.get("name") != PLUGIN_NAME or compat.get("version") != version:
+            raise PackageError("Claude compatibility identity/version differs from portable manifest")
+    if ".mcp.json" in files:
+        compat = public_server(files, ".mcp.json")
+        if compat != {"type": "http", "url": "https://vault.thegram.one/mcp"}:
+            raise PackageError("Claude compatibility endpoint/type changed or includes private settings")
+    extensions = manifest.get("extensions", {})
+    if not isinstance(extensions, dict) or not isinstance(extensions.get("com.openai", {}), dict):
+        raise PackageError("Portable extensions must be objects")
+    interface = extensions.get("com.openai", {}).get("interface", {})
     if not isinstance(interface, dict):
-        raise PackageError("Plugin interface must be an object")
+        raise PackageError("Portable listing interface must be an object")
     short = interface.get("shortDescription")
     if short is not None and (not isinstance(short, str) or len(short) > 30):
         raise PackageError("Listing shortDescription must have at most 30 characters")
@@ -334,8 +354,8 @@ def verify_shared_skill(root: Path) -> None:
     lock = json.loads(read_local_file(root / "skill-source.lock.json"))
     source = lock.get("source", {})
     if source.get("repository") != "clab-one/thegram-mcp" or source.get("path") != "skills/thegram-memory":
-        raise PackageError("The canonical workflow must come from clab-one/thegram-mcp:skills/thegram-memory")
-    if not isinstance(source.get("commit"), str) or not re.fullmatch(r"[0-9a-f]{40}", source["commit"]):
+        raise PackageError("The shared workflow lock names an unexpected source")
+    if not re.fullmatch(r"[0-9a-f]{40}", str(source.get("commit", ""))):
         raise PackageError("The shared workflow must pin a full source commit")
     if shared_skill_hashes(local_tree(root, SKILL_ROOT), SKILL_ROOT) != lock.get("files"):
         raise PackageError("Bundled workflow differs from the pinned shared skill; run scripts/sync_skill.py")
@@ -375,31 +395,16 @@ def write_archive(files: dict[str, bytes], output: Path, source: Path | None = N
     return output
 
 
-def build_package(root: Path, output: Path, host: str, expected_version: str | None = None) -> Path:
-    if host not in HOST_MANIFESTS:
-        raise PackageError(f"Unsupported plugin host: {host}")
-    source = load_json({"plugin.json": read_local_file(root / "plugin.json")}, "plugin.json")
-    if host == "chatgpt":
-        metadata = ("name", "version", "description", "author", "homepage", "repository", "license", "keywords")
-        manifest = {key: source[key] for key in metadata if key in source}
-        manifest["interface"] = source.get("extensions", {}).get("com.openai", {}).get("interface", {})
-        manifest["apps"] = "./.app.json"
-    else:
-        manifest = load_json({HOST_MANIFESTS[host]: read_local_file(root / HOST_MANIFESTS[host])}, HOST_MANIFESTS[host])
-        if manifest.get("name") != source.get("name") or manifest.get("version") != source.get("version"):
-            raise PackageError("Claude plugin identity/version differs from the release source")
-    manifest["skills"] = "./skills/"
-    manifest["mcpServers"] = "./.mcp.json"
-    files = {HOST_MANIFESTS[host]: json_bytes(manifest), ".mcp.json": read_local_file(root / ".mcp.json")}
-    if host == "chatgpt":
-        files[".app.json"] = read_local_file(root / ".app.json")
-    for tree in ("skills", "assets"):
-        files.update(local_tree(root, tree))
-    validate_package(files, host, expected_version)
+def build_public(root: Path, output: Path, expected_version: str | None = None) -> Path:
+    files = {name: read_local_file(root / name) for name in PUBLIC_FILES if (root / name).exists()}
+    for tree in PUBLIC_TREES:
+        if tree in ("skills", "assets") or (root / tree).exists():
+            files.update(local_tree(root, tree))
+    validate_public(files, expected_version)
     return write_archive(files, output)
 
 
-def update_private(source: Path, version: str, output: Path, root: Path, *, host: str = "chatgpt") -> Path:
+def update_private(source: Path, version: str, output: Path, root: Path) -> Path:
     check_version(version)
     if output.resolve() == source.resolve():
         raise PackageError("Output must not replace the source archive")
@@ -407,10 +412,7 @@ def update_private(source: Path, version: str, output: Path, root: Path, *, host
     files = read_archive(source, metadata)
     with zipfile.ZipFile(source) as archive:
         archive_comment = archive.comment
-    if host not in HOST_MANIFESTS:
-        raise PackageError(f"Unsupported plugin host: {host}")
-    manifest_path = HOST_MANIFESTS[host]
-    manifest = load_json(files, manifest_path)
+    manifest = load_json(files, PRIVATE_MANIFEST)
     if not isinstance(manifest.get("name"), str) or not manifest["name"].strip():
         raise PackageError("Private plugin must retain an existing nonempty identity")
     routes = skill_routes(manifest)
@@ -457,7 +459,7 @@ def update_private(source: Path, version: str, output: Path, root: Path, *, host
     else:
         manifest["skills"] = kept
     manifest["version"] = version
-    files[manifest_path] = json_bytes(manifest)
+    files[PRIVATE_MANIFEST] = json_bytes(manifest)
     check_file_tree(files)
     validate_skill_files(files, skill_routes(manifest), owned_only=True)
     return write_archive(files, output, source, metadata, archive_comment)
@@ -467,32 +469,29 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
     default_root = Path(__file__).resolve().parent.parent
-    build = commands.add_parser("build", help="Build a credential-free native ChatGPT or Claude ZIP")
+    build = commands.add_parser("build", help="Build a credential-free portable release ZIP")
     build.add_argument("--root", type=Path, default=default_root)
     build.add_argument("--output", type=Path, required=True)
     build.add_argument("--expected-version")
-    build.add_argument("--host", choices=tuple(HOST_MANIFESTS), required=True)
-    validate = commands.add_parser("validate", help="Validate a native host package offline")
+    validate = commands.add_parser("validate", help="Validate a portable release ZIP offline")
     validate.add_argument("archive", type=Path)
     validate.add_argument("--expected-version")
-    validate.add_argument("--host", choices=tuple(HOST_MANIFESTS), required=True)
-    private = commands.add_parser("update-private", help="Overlay the shared skill onto an existing host export")
+    private = commands.add_parser("update-private", help="Overlay the skill onto a private ChatGPT ZIP")
     private.add_argument("source", type=Path)
     private.add_argument("version")
     private.add_argument("--root", type=Path, default=default_root)
     private.add_argument("--output", type=Path, required=True)
-    private.add_argument("--host", choices=tuple(HOST_MANIFESTS), default="chatgpt")
     args = parser.parse_args()
     try:
         if args.command == "build":
             verify_shared_skill(args.root)
-            print(build_package(args.root, args.output, args.host, args.expected_version))
+            print(build_public(args.root, args.output, args.expected_version))
         elif args.command == "validate":
-            version = validate_package(read_archive(args.archive), args.host, args.expected_version)
-            print(f"Valid {args.host} {PLUGIN_NAME} package {version}; bundled skill and references resolve")
+            version = validate_public(read_archive(args.archive), args.expected_version)
+            print(f"Valid portable {PLUGIN_NAME} package {version}; bundled skill and references resolve")
         else:
             verify_shared_skill(args.root)
-            print(update_private(args.source, args.version, args.output, args.root, host=args.host))
+            print(update_private(args.source, args.version, args.output, args.root))
     except (PackageError, OSError, json.JSONDecodeError) as exc:
         parser.exit(1, f"Packaging failed: {exc}\n")
     return 0

@@ -9,4 +9,4 @@ if [ "$#" -lt 2 ] || [ "$#" -gt 3 ]; then
 fi
 root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 exec python3 "$root/scripts/package_plugin.py" update-private "$1" "$2" \
-    --host chatgpt --root "$root" --output "${3:-thegram-chatgpt-$2.zip}"
+    --root "$root" --output "${3:-thegram-chatgpt-$2.zip}"
