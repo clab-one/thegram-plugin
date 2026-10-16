@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "thegram-cloud",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "One purpose, one structured .gram file: shared memory for people and AI, with source-grounded information, decisions, relationships and change history. Use authorized Thegram Cloud vaults or separately connected Google Drive destinations. Agent visibility and writes are limited by per-agent access set at https://vault.thegram.one/settings/agents.",
   "author": {
     "name": "Roy Kim",
@@ -106,7 +106,7 @@
         "demo_recording_url": "https://thegram.one/review/openai/"
       },
       "publication": {
-        "release_notes": "2.0.1: Every document shows one dashboard for its type (project@1 Project Tracker, schedule@1 Journal, knowledge@1 Knowledge). The bundled skill now picks one template per new document, edits only declared documents on the dashboard, treats ~project@1 as a read-only recommendation and declares a template only when the user asks. Tools and MCP/OAuth configuration are unchanged.",
+        "release_notes": "2.0.2: The bundled skill records each authorized outcome as a linked record (decision, event, risk or task, status change, metric observation), reuses a document wherever it sits now that Cloud vaults support folders, never creates a duplicate because an expected path is empty, sends request_id with gram_create for safe replay and uses explicit patch operations instead of template action arguments. Tools and MCP/OAuth configuration are unchanged.",
         "translations": {
           "ko-KR": {
             "subtitle": "목적별 .gram 하나, 사람과 AI의 기억",

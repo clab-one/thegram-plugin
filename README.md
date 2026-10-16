@@ -10,7 +10,7 @@ The plugin connects to https://vault.thegram.one/mcp using OAuth. It preserves t
 
 | Mount | Path | Storage |
 | --- | --- | --- |
-| Thegram Cloud vault granted to this agent | `@mounts/<vault-id>/<project>.gram` | Top-level cloud vault document. |
+| Thegram Cloud vault granted to this agent | `@mounts/<vault-id>/[<folders>/]<project>.gram` | Cloud vault document, at the root or in a folder. |
 | Connected Drive account explicitly granted to this agent | `@mounts/google-drive-<account>/<folders>/<name>.gram` | Requested Google Drive destination. |
 
 Use the exact keys from `gram_projects`. Reuse the established project document. Do not copy between mounts or redirect failed saves. Shared-vault viewers cannot write. Local-only Mac folders are not visible to the cloud server.
@@ -42,7 +42,7 @@ The English [reviewer guide](review/reviewer-guide.md) defines five positive and
 Creating a custom MCP server at `https://vault.thegram.one/mcp` supplies tools but **does not automatically install this repository's skill**. To add/update it through that existing plugin's real packaging route:
 
 1. On the plugin page, download its ZIP through **⋯ → Download plugin ZIP**.
-2. Run `scripts/chatgpt-package.sh /path/to/downloaded-plugin.zip 2.0.1 /path/to/thegram-private-2.0.1.zip` in this repository. Use a version higher than that private plugin's current version.
+2. Run `scripts/chatgpt-package.sh /path/to/downloaded-plugin.zip 2.0.2 /path/to/thegram-private-2.0.2.zip` in this repository. Use a version higher than that private plugin's current version.
 3. Choose **⋯ → Upload new version** and upload the generated ZIP to the same plugin.
 4. Verify the host lists `thegram-cloud` with the new description and can load its references. Then call `gram_projects` and a relevant `gram_brief` to verify connection separately.
 
@@ -60,8 +60,8 @@ A remote connector supplies the MCP tools; it does not install the bundled skill
 
 ```sh
 python3 -m unittest discover -s tests -p 'test_*.py' -v
-python3 scripts/package_plugin.py build --output /tmp/thegram-cloud-2.0.1.zip
-python3 scripts/package_plugin.py validate /tmp/thegram-cloud-2.0.1.zip --expected-version 2.0.1
+python3 scripts/package_plugin.py build --output /tmp/thegram-cloud-2.0.2.zip
+python3 scripts/package_plugin.py validate /tmp/thegram-cloud-2.0.2.zip --expected-version 2.0.2
 ```
 
 The offline packaging tests use synthetic exported ZIPs to check preservation, discovery, owned-folder replacement, references and unsafe-archive rejection. No OAuth tokens or personal files are required. The CI workflow runs these checks for the exact source commit.

@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.0.2 — 2026-10-16
+
+- Recording: when saving is authorized, the skill maps each kind of outcome to one linked record (accepted or replaced decision, shipped or verified event, caveat as risk or task, status change with `old`, metric observation) and reads the root project record before the first write. Nothing qualifying means nothing is written.
+- Folders: Thegram Cloud vaults support folders (`gram_folder`, `gram_move`, `gram_list {}`), so the skill reuses a document wherever it sits, moves or creates folders only when asked, and never creates a second document because an expected path is empty. Contracts no longer claim only root vault documents are writable.
+- Writes: `gram_create` accepts `request_id` and replays an identical create; Cloud `gram_patch` rejects `action`/`action_target` (`E_ARGUMENT`), so template requirements are met with ordinary operations and `E_ACTION` guidance is removed. `gram_relations` takes `from: {path, entity}`.
+- Tools, MCP/OAuth configuration, package identity and review cases are unchanged from 2.0.1.
+
 ## 2.0.1 — 2026-10-14
 
 - Thegram 2.0.1 shows one dashboard per document type: `project@1` Project Tracker, `schedule@1` Journal, `knowledge@1` Knowledge. The bundled skill, contracts and README now say so: pick one template for a new document with `gram_create {template}`; only a declared document is editable on its dashboard; a document without a template shows Core's recommended dashboard (`~project@1`) read-only, and the agent declares a template only when the user asks; an unknown template declaration has no dashboard. Wording that suggested several screens or boards per template is removed.

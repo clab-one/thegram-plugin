@@ -27,7 +27,7 @@ Suppose the replacement patch succeeds but its reply is lost. Reconcile with a f
 
 Suppose another writer adds a release caveat after your brief. Sending your original base must fail stale. Read the new revision and relevant section, preserve the caveat, and re-evaluate whether the replacement remains needed. If it does, rebuild the intended delta using the new rev/hash and a **new** request ID. If the same intended fields now disagree, resolve the evidence/intent conflict rather than overwrite them. `STORAGE_CONFLICT` requires the same reconciliation with the provider's latest state.
 
-Reusing an ID with different operations must fail; do not use replay as a way to change history. A lost create reply has no request ID to replay: list/read the destination and compare its content before deciding whether creation is still needed.
+Reusing an ID with different operations must fail; do not use replay as a way to change history. A create sent with a `request_id` replays the same way; without one, list/read the destination and compare its content before deciding whether creation is still needed.
 
 ## Time and source-grounded metrics
 
