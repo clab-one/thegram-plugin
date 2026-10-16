@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.8 — 2026-10-16
+
+- The OpenAI listing's AI access section, in English and Korean, now says "compatible AI assistants and coding agents" instead of naming ChatGPT and Claude. No MCP, OAuth, skill, server, credential or production setting is changed.
+
 ## 2.0.7 — 2026-10-16
 
 - Rewrite the OpenAI and Claude listing around "Where your thoughts connect": everyday life, learning, hobbies and teamwork, not only projects. Refresh the English and Korean descriptions, capabilities, example prompts, keywords and Claude manifest descriptions.
