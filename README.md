@@ -1,6 +1,6 @@
 # thegram-cloud
 
-The cloud plugin for [Thegram](https://thegram.one) gives people and supported AI clients a shared, purpose-based memory. **One purpose. One structured .gram file.** Keep useful information, sources, decisions, relationships and change history together, then explore the same records through document, dashboard and graph views in compatible Thegram apps, with revision history instead of a separate history or duplicated content for each view. Thegram Cloud currently supports Document and Dashboard; Graph is available in the desktop app. Each document has one dashboard for its type.
+The cloud plugin for [Thegram](https://thegram.one): **where your thoughts connect.** Plans, notes, ideas and knowledge live in structured .gram files that people and supported AI clients share. Each file holds a readable document, structured records, relationships and revision history. On the web at https://vault.thegram.one, people write and edit documents, explore the same records through document, dashboard and graph views, arrange dashboard widgets, and revisit earlier revisions. Each document has one dashboard for its template.
 
 Use it for plans, research, shared projects or everyday work—not only software development. When you authorize saving, the assistant can preserve useful context from conversations and other apps available through its authorized connectors, with source attribution rather than a raw transcript archive. The plugin itself does not fetch Slack or Gmail, and reading another source does not itself authorize copying it into Thegram. People can read and manage the same memory in supported Thegram apps; AI clients retrieve context and record authorized outcomes. No running Mac or desktop app is required for this cloud plugin.
 
@@ -39,6 +39,8 @@ Its `skills/thegram-memory/` is the canonical workflow. This repository imports 
 
 The [versioned release ZIP](https://github.com/clab-one/thegram-plugin/releases) is the portable package for OpenAI directory submission: root `plugin.json` carries the listing (`extensions.com.openai.interface`), icons, review cases and publication notes, with `mcp.json`, `skills/`, assets and the `.claude-plugin`/`.mcp.json` compatibility files. It must not contain `.app.json` or an `apps` binding. Submit the Claude directory listing from this repository at the `.claude-plugin/plugin.json` root through Claude's developer portal. Package checks, directory approval and end-user installation are separate steps.
 
+In Claude Code, add this repository as a marketplace and install the plugin with `/plugin marketplace add clab-one/thegram-plugin` and `/plugin install thegram-cloud@thegram-cloud`.
+
 For the step-by-step connection flow, see [the install guide](https://thegram.one/install/#chatgpt) and its [agent-readable guide](https://thegram.one/install/chatgpt.md). Sign in at [Thegram Cloud](https://vault.thegram.one), finish sign-up, and keep OAuth when connecting. First sight grants write to the owned default Thegram vault only. Connect Drive in **Settings → Connections**, then explicitly allow this agent in **Settings → Connected agents** when needed.
 
 ## Public ChatGPT review materials
@@ -50,7 +52,7 @@ The English [reviewer guide](review/reviewer-guide.md) defines five positive and
 Creating a custom MCP server at `https://vault.thegram.one/mcp` supplies tools but **does not automatically install this repository's skill**. To add/update it through that existing plugin's real packaging route:
 
 1. On the plugin page, download its ZIP through **⋯ → Download plugin ZIP**.
-2. Run `scripts/chatgpt-package.sh /path/to/downloaded-plugin.zip 2.0.6 /path/to/thegram-private-2.0.6.zip` in this repository. Use a version higher than that private plugin's current version.
+2. Run `scripts/chatgpt-package.sh /path/to/downloaded-plugin.zip 2.0.7 /path/to/thegram-private-2.0.7.zip` in this repository. Use a version higher than that private plugin's current version.
 3. Choose **⋯ → Upload new version** and upload the generated ZIP to the same plugin.
 4. Verify the host lists `thegram-cloud` with the new description and can load its references. Then call `gram_projects` and a relevant `gram_brief` to verify connection separately.
 
@@ -69,8 +71,8 @@ A remote connector supplies the MCP tools; it does not install the bundled skill
 ```sh
 python3 -m unittest discover -s tests -p 'test_*.py' -v
 python3 scripts/sync_skill.py --check
-python3 scripts/package_plugin.py build --output /tmp/thegram-cloud-2.0.6.zip
-python3 scripts/package_plugin.py validate /tmp/thegram-cloud-2.0.6.zip --expected-version 2.0.6
+python3 scripts/package_plugin.py build --output /tmp/thegram-cloud-2.0.7.zip
+python3 scripts/package_plugin.py validate /tmp/thegram-cloud-2.0.7.zip --expected-version 2.0.7
 claude plugin validate --strict .
 ```
 

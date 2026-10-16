@@ -3,13 +3,13 @@
 	"owner": {
 		"name": "clab-one"
 	},
-	"description": "One purpose, one structured .gram file: shared memory for people and AI.",
+	"description": "Where your thoughts connect: plans, notes, ideas and knowledge in .gram files shared by people and AI.",
 	"plugins": [
 		{
 			"name": "thegram-cloud",
 			"source": "./",
-			"version": "2.0.6",
-			"description": "One purpose, one structured .gram file: shared memory for people and AI over https://vault.thegram.one/mcp, no Mac or desktop app required."
+			"version": "2.0.7",
+			"description": "Where your thoughts connect: write, organize and revisit .gram records with AI over https://vault.thegram.one/mcp, no Mac or desktop app required."
 		}
 	]
 }

@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.7 — 2026-10-16
+
+- Rewrite the OpenAI and Claude listing around "Where your thoughts connect": everyday life, learning, hobbies and teamwork, not only projects. Refresh the English and Korean descriptions, capabilities, example prompts, keywords and Claude manifest descriptions.
+- Describe web document editing, document/dashboard/graph views on the web, widget dashboards, semantic search with word fallback, revision history and per-agent access. Drop the outdated claim that Graph is desktop-only.
+- Add the Claude Code marketplace install line to the README. No MCP, OAuth, skill, server, credential or production setting is changed.
+
 ## 2.0.6 — 2026-10-16
 
 - Return to the single portable package used through 2.0.4: root `plugin.json` with the OpenAI listing, icons, review cases and publication notes, plus `mcp.json`, `.claude-plugin/` and `.mcp.json`. The OpenAI directory reads its listing from it again; the Claude directory is submitted from the repository's `.claude-plugin/plugin.json` root.
