@@ -2,7 +2,7 @@
 
 ## 2.0.9 — 2026-10-16
 
-- The Claude manifest declares the directory listing fields: display name `Thegram`, the `assets/logo.png` icon, and the support, privacy policy and terms URLs. This clears the directory validator's missing privacy policy warning. No MCP, OAuth, skill, server, credential or production setting is changed.
+- The Claude manifest declares the directory listing fields: display name Thegram, the Thegram logo as its icon, and the support, privacy policy and terms URLs. This clears the directory validator's missing privacy policy warning. No MCP, OAuth, skill, server, credential or production setting is changed.
 
 ## 2.0.8 — 2026-10-16
 
