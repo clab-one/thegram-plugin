@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.4 — 2026-10-16
+
+- A record of the wrong kind, such as a commit written as a task, is treated as a mistake rather than history: the skill reports it and, with the user's consent, keeps the fact as an `event` and removes the wrong record. Changing records to move a number stays forbidden.
+- Tools, MCP/OAuth configuration, package identity and review cases are unchanged from 2.0.3.
+
 ## 2.0.3 — 2026-10-16
 
 - Dashboard: the skill now says what the Project Tracker counts. Progress, open tasks and the task board count `task` records (cancelled/superseded stay in the total); goal rings count tasks linked `part-of` the goal; risks count by status; a metric chart needs repeated `value`/`observed` updates on one metric; revision history is recording time. Planned work is a `task` closed with `completed` + `done`; a commit, release or deploy is an `event`. Adding, splitting, relabelling or completing records to move a number is forbidden; a misleading number is reported instead.
