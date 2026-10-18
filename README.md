@@ -66,6 +66,10 @@ In Claude **Settings → Connectors**, add a custom connector named **Thegram** 
 
 A remote connector supplies the MCP tools; it does not install the bundled skill or the Claude Code plugin. The Connectors Directory submission is separate from this package’s release and from a private custom connection.
 
+## Document chat requests
+
+People can send instructions from the chat of a Thegram document. ChatGPT receives them through MCP Events: after the plugin is connected and the agent has write access to the vault, ask ChatGPT (a Work chat or a dot) to subscribe to `chat.task.created`. Each delivered request is handled with `chat_task_get`, `chat_doc_read` and one `chat_task_submit`; these tools take a task ID instead of a path, so the agent reads and changes only the document the request came from. The tools and event are served by `https://vault.thegram.one/mcp` (protocol `2026-07-28`); after a server release that changes them, rescan the MCP server on the plugin page so the event appears beside the tools. Clients without MCP Events can still pick up requests with `chat_task_list` when the person asks.
+
 ## Validate and package
 
 ```sh

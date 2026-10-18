@@ -1,14 +1,14 @@
 {
   "source": {
     "repository": "clab-one/thegram-mcp",
-    "commit": "0251835dc7fd5f8ed5502cf7f661cc1c01f25e88",
+    "commit": "bc0e2dd6c939dba8c99259d303a535452d877aed",
     "path": "skills/thegram-memory"
   },
   "files": {
-    "SKILL.md": "4e5e1b7586d44fed234f9a4e1036854f780787bcf26c021e595a36cce440c100",
+    "SKILL.md": "0a39ce90d9e0205768cce3ead69145e5c162d338f6b9b00a7494608b2a71100d",
     "backfill.md": "8f37e0ed2b61e6d145fab4cef24c0d16b04860f68beb043f69791287f55db825",
     "references/authoring-patterns.md": "7bc0e713cfea80a78a67d249cbb578bcfb8818d8089e5962e1f1ad9ecfb59548",
-    "references/contracts.md": "cbab256d5189321d138036bdb0416a52f20e8aada63a061571193650f2bf3326",
+    "references/contracts.md": "91b6fbbfb22612ff461ff1112401ef0c3e813ca89a887f6af46e280d0affa1c6",
     "references/examples.md": "ecb269ec991bab6de8860f64cc6875c08addb330950300bb8b8b09c5305de34e",
     "references/lifecycle.json": "7cc28e40b50799df234927569f8d885532e0236bbadc81a9c89f3cf179ed7afa"
   }

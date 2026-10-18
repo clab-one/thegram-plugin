@@ -1,7 +1,7 @@
 {
   "name": "thegram-cloud",
   "displayName": "Thegram",
-  "version": "2.0.9",
+  "version": "2.1.0",
   "description": "Organize plans, notes, tasks, ideas and knowledge in structured .gram files shared by people and supported AI assistants. Retrieve relevant records, relationships and revision history from authorized Thegram vaults or connected Google Drive. Save only within the user's authorized scope and destination, then verify the result.",
   "author": {
     "name": "Roy Kim"
