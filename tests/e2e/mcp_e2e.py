@@ -154,7 +154,8 @@ def exercise(token, api_token, mount):
     record("initialize", status == 200 and "result" in (init or {}), server=((init or {}).get("result") or {}).get("serverInfo"))
     _, listed = agent.rpc("tools/list")
     names = sorted(t["name"] for t in ((listed or {}).get("result") or {}).get("tools", []))
-    record("tools/list has the 15 gram tools", len(names) == 15 and all(n.startswith("gram_") for n in names), tools=names)
+    chat = {"chat_task_list", "chat_task_get", "chat_doc_read", "chat_task_submit"}
+    record("tools/list has the gram tools and the document chat tools", chat <= set(names) and all(n.startswith("gram_") for n in set(names) - chat), tools=names)
 
     failed, projects = agent.tool("gram_projects", {})
     mounts = {m["id"]: m for m in (projects or {}).get("mounts", [])}
