@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.2.0 — 2026-10-19
+
+- Import the canonical 3.3.0 skill: scheduled automations write one run record per execution (failed sources as `failed:<source>` tags), keep each found item once with `ref`, `at`, `source:`/`topic:` tags and a `derives` link to the run that first found it, and tag watched things `target`; what needs a person follows the project's own rule, a change still ahead becomes a dated task and harm nobody can act on stays a risk.
+- The research, monitoring and collected-log dashboards (thegram-ui 3.31.0, vaultd `1a6bf40`) read this shape. The OAuth configuration and MCP endpoint are unchanged.
+
 ## 2.1.2 — 2026-10-19
 
 - Import the canonical 3.2.2 skill: every document follows Core's one record vocabulary (`gram@1`), so `gram_create` takes no template. One status table gives each status its open, done or closed class, which the dashboard, `gram_brief`, `gram_recall {status}` and the graph all count by; `mitigated` risks and `proposed` decisions stay open.

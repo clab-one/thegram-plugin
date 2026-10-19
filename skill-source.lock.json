@@ -1,17 +1,17 @@
 {
   "source": {
     "repository": "clab-one/thegram-mcp",
-    "commit": "d0cda347cf2f90b4faea47a0e2b83e218c09f98a",
+    "commit": "2f57a4097b2e636e8e228d262306cf1bd881c19a",
     "path": "skills/thegram-memory"
   },
   "files": {
-    "SKILL.md": "31a0134e3164e09091ad5a0107e3f9c1071520320ecad25ca030783efe075531",
+    "SKILL.md": "b6dfac1485476070501a19a5d5945d8dcb5cdea156c8848f8234689106a3a9f0",
     "backfill.md": "f1ae6d37275da1a41a035969d572f3ed4e0b2c5267c99034d5666883840aa62a",
     "references/authoring-patterns.md": "c8f2e27727b80975531f67a775074d6d90d10bb1af878fc424b910ef09e48b2b",
-    "references/classification.json": "cec3dee4dbf4369544d4def98255c59eeeb1380adeeaad192f5af94e100308ec",
+    "references/classification.json": "8a971b11b6fcca64ec30d5f1dcee7afaf5400fbf23b11155ee172e5adfacb731",
     "references/contracts.md": "020ba6dbe38328bf42152f0e6af7e71a4bc1cf870aee97c15a74486c4284caef",
     "references/examples.md": "24e7d3511fc690a1d8b27649534d9ee89150fa44d3b8989f6140e4997bbfde39",
     "references/lifecycle.json": "487213e60110b3e5e5bf4fb578f6521942944960df7a2b78d8c3203a1501cd86",
-    "references/widget-data.md": "2d950e00f33b8c71bc04207256d57f3d85435f45adbe2cb5da34e690129e84f5"
+    "references/widget-data.md": "19b12bcd66aff6135a76ff4b2d20f7c8590852c7e3ee73d1326d3402aeb20763"
   }
 }
