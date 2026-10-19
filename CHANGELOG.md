@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.1.2 — 2026-10-19
+
+- Import the canonical 3.2.2 skill: every document follows Core's one record vocabulary (`gram@1`), so `gram_create` takes no template. One status table gives each status its open, done or closed class, which the dashboard, `gram_brief`, `gram_recall {status}` and the graph all count by; `mitigated` risks and `proposed` decisions stay open.
+- Closing a record: rewrite `d` in the same patch, link resolving evidence `related` rather than `supports`, reconcile the same fact in other documents first, and keep `ref` to links others can open (no `file://` or local paths). A new classification case covers a fix that resolves one risk and only mitigates another.
+- Needs the vaultd release that serves the one vocabulary; the OAuth configuration and MCP endpoint are unchanged.
+
 ## 2.1.1 — 2026-10-19
 
 - Import the canonical 3.2.1 skill: classify atomic facts by meaning; reuse tracked tasks, components and metric identities; preserve proposed decisions, incomplete work, relation scope and source dates. No automatic commit events or invented historical task lifecycles.

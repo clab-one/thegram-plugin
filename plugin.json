@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "thegram-cloud",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "Organize plans, notes, tasks, ideas and knowledge in structured .gram files shared by people and supported AI assistants. Retrieve relevant records, relationships and revision history from authorized Thegram vaults or connected Google Drive. Save only within the user's authorized scope and destination, then verify the result.",
   "author": {
     "name": "Roy Kim",
@@ -135,7 +135,7 @@
         "demo_recording_url": "https://thegram.one/review/openai/"
       },
       "publication": {
-        "release_notes": "2.1.0: Document chat. The skill now handles requests sent from a Thegram document's chat: ChatGPT can subscribe to the chat.task.created MCP event and answers each request with the chat_* tools, which read and change only the document the request came from. The OAuth configuration and MCP endpoint are unchanged; the tools and event come from the server.",
+        "release_notes": "2.1.2: One record vocabulary. Every Thegram document now follows the same record types and statuses, so the skill no longer picks a template: it lists each status with its open, done or closed class, rewrites a record's description when it closes, links the evidence that resolved a risk as related and keeps references to links others can open. The OAuth configuration and MCP endpoint are unchanged.",
         "translations": {
           "ko-KR": {
             "subtitle": "당신의 모든 생각이 이어지는 곳.",
