@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "thegram-cloud",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "Organize plans, notes, tasks, ideas and knowledge in structured .gram files shared by people and supported AI assistants. Retrieve relevant records, relationships and revision history from authorized Thegram vaults or connected Google Drive. Save only within the user's authorized scope and destination, then verify the result.",
   "author": {
     "name": "Roy Kim",
@@ -135,7 +135,7 @@
         "demo_recording_url": "https://thegram.one/review/openai/"
       },
       "publication": {
-        "release_notes": "2.2.0: Scheduled automations. A document a scheduled run writes (a research digest, a monitor, a collected log) records one run per execution, keeps each found item once with its link, time, source and topic, and tags the things it watches, so the research, monitoring and collected-log dashboards show what is new, the runs and each target. The OAuth configuration and MCP endpoint are unchanged.",
+        "release_notes": "2.3.0: Agent work. When an agent works for you, it keeps each piece of work as one task naming the agent and the repository, moves its status with the work (waiting with the question, review with what to look at, blocked with what stops it, completed with the outcome), and records each PR, merge, release, deployment or verification as one step of that task, so the AI work board shows who is doing what and how the work went.",
         "translations": {
           "ko-KR": {
             "subtitle": "당신의 모든 생각이 이어지는 곳.",

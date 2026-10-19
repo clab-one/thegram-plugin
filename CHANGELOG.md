@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.3.0 — 2026-10-19
+
+- Import the canonical 3.4.0 skill: an agent keeps each piece of work as one task (`owner` its agent name, `s` the repository, `start`/`done`), moves `x` with the work (`waiting` with the question, `review` with what to look at, `blocked` with what stops it, `completed` with the outcome) and records each PR, merge, release, deployment or verification as one step event linked `part-of` that task, never one per commit or test run.
+- The AI work board (thegram-ui 3.32) reads this shape. The OAuth configuration and MCP endpoint are unchanged.
+
 ## 2.2.0 — 2026-10-19
 
 - Import the canonical 3.3.0 skill: scheduled automations write one run record per execution (failed sources as `failed:<source>` tags), keep each found item once with `ref`, `at`, `source:`/`topic:` tags and a `derives` link to the run that first found it, and tag watched things `target`; what needs a person follows the project's own rule, a change still ahead becomes a dated task and harm nobody can act on stays a risk.
