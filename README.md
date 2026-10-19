@@ -52,7 +52,7 @@ The English [reviewer guide](review/reviewer-guide.md) defines five positive and
 Creating a custom MCP server at `https://vault.thegram.one/mcp` supplies tools but **does not automatically install this repository's skill**. To add/update it through that existing plugin's real packaging route:
 
 1. On the plugin page, download its ZIP through **⋯ → Download plugin ZIP**.
-2. Run `scripts/chatgpt-package.sh /path/to/downloaded-plugin.zip 2.1.2 /path/to/thegram-private-2.1.2.zip` in this repository. Use a version higher than that private plugin's current version.
+2. Run `scripts/chatgpt-package.sh /path/to/downloaded-plugin.zip 2.2.0 /path/to/thegram-private-2.2.0.zip` in this repository. Use a version higher than that private plugin's current version.
 3. Choose **⋯ → Upload new version** and upload the generated ZIP to the same plugin.
 4. Verify the host lists `thegram-cloud` with the new description and can load its references. Then call `gram_projects` and a relevant `gram_brief` to verify connection separately.
 
@@ -70,6 +70,10 @@ A remote connector supplies the MCP tools; it does not install the bundled skill
 
 People can send instructions from the chat of a Thegram document. ChatGPT receives them through MCP Events: after the plugin is connected and the agent has write access to the vault, ask ChatGPT (a Work chat or a dot) to subscribe to `chat.task.created`. Each delivered request is handled with `chat_task_get`, `chat_doc_read` and one `chat_task_submit`; these tools take a task ID instead of a path, so the agent reads and changes only the document the request came from. The tools and event are served by `https://vault.thegram.one/mcp` (protocol `2026-07-28`); after a server release that changes them, rescan the MCP server on the plugin page so the event appears beside the tools. Clients without MCP Events can still pick up requests with `chat_task_list` when the person asks.
 
+## Scheduled automations (2.2.0)
+
+A document a scheduled run writes (a research digest, a monitor, a collected log) records one `run` event per execution, keeps each found item under one stable ID with `ref`, `at` and `source:`/`topic:` tags linked `derives` only to the run that first found it, and tags watched things `target`. What needs a person follows the automation's own rule in the project's description. The research, monitoring and collected-log dashboards in thegram-ui 3.31.0 read this shape. Imported from `thegram-mcp` 3.3.0 (`2f57a40`); its authoring E2E scores 54/54 and 38/38 with this skill against 18/54 and 10/38 with 3.2.2.
+
 ## One record vocabulary (2.1.2)
 
 Every document follows Core's one record vocabulary, so the skill no longer chooses a template. Each status has an open, done or closed class shared by the dashboard, `gram_brief`, `gram_recall` and the graph. Closing a record rewrites its description, resolving evidence links `related`, and `ref` holds only links others can open.
@@ -85,8 +89,8 @@ The bundled widget-data reference covers the 50-kind catalog: current progress u
 ```sh
 python3 -m unittest discover -s tests -p 'test_*.py' -v
 python3 scripts/sync_skill.py --check
-python3 scripts/package_plugin.py build --output /tmp/thegram-cloud-2.1.2.zip
-python3 scripts/package_plugin.py validate /tmp/thegram-cloud-2.1.2.zip --expected-version 2.1.2
+python3 scripts/package_plugin.py build --output /tmp/thegram-cloud-2.2.0.zip
+python3 scripts/package_plugin.py validate /tmp/thegram-cloud-2.2.0.zip --expected-version 2.2.0
 claude plugin validate --strict .
 ```
 
