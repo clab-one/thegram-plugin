@@ -252,7 +252,14 @@ def local_tree(root: Path, prefix: str) -> dict[str, bytes]:
 def no_credentials(value: object, path: str) -> None:
     if isinstance(value, dict):
         for key, child in value.items():
-            if re.search(r"(?:password|secret|token|authorization|credential|api[_-]?key)", key, re.I) and child:
+            # The shipped semantic oracle maps stable entity IDs to record types.
+            # An ID such as know-token-expiry is data, not a credential field.
+            # Keep this exception confined to that exact type-valued fixture map;
+            # credential fields elsewhere (including inside records) still fail.
+            type_map = path.endswith("/references/classification.json.cases.expect.additions")
+            entity_type = isinstance(child, str) and child in {"knowledge", "decision", "task", "component", "source", "evidence", "risk", "blocker", "metric", "artifact", "event"}
+            entity_id = re.fullmatch(r"(?:know|dec|task|cmp|src|evd|risk|blk|met|art|ev)-[a-z0-9-]+", key)
+            if re.search(r"(?:password|secret|token|authorization|credential|api[_-]?key)", key, re.I) and child and not (type_map and entity_type and entity_id):
                 raise PackageError(f"Credential-like field is forbidden in public package: {path}.{key}")
             no_credentials(child, path + "." + key)
     elif isinstance(value, list):

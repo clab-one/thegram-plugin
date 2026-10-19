@@ -335,6 +335,16 @@ class PackagingTests(unittest.TestCase):
                 package.build_public(self.root, self.directory / "bad.zip")
             (self.root / name).unlink()
 
+    def test_semantic_fixture_entity_type_map_is_not_a_credential(self):
+        path = "skills/thegram-cloud/references/classification.json.cases.expect.additions"
+        package.no_credentials({"know-token-expiry": "knowledge"}, path)
+        for value, location in (({"access_token": "fake-secret"}, path),
+                                ({"know-token-expiry": "fake-secret"}, path),
+                                ({"know-token-expiry": "knowledge"}, "assets/config.json"),
+                                ({"token": "fake-secret"}, "skills/thegram-cloud/references/classification.json.cases.plan.record.fields")):
+            with self.subTest(value=value, location=location), self.assertRaises(package.PackageError):
+                package.no_credentials(value, location)
+
     def test_portable_endpoint_credentials_fail(self):
         self.put("mcp.json", package.json_bytes({"mcpServers": {"thegram": {
             "type": "streamable-http", "url": "https://vault.thegram.one/mcp", "headers": {"X-Key": "fake"},

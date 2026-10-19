@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.1.1 — 2026-10-19
+
+- Import the canonical 3.2.1 skill: classify atomic facts by meaning; reuse tracked tasks, components and metric identities; preserve proposed decisions, incomplete work, relation scope and source dates. No automatic commit events or invented historical task lifecycles.
+- Add worked classification regressions and widget data contracts for status classes, goal links, calendars, metrics, saved-layout readiness and runtime-only capabilities.
+- The eight shared skill files match the tested private ChatGPT plugin 2.1.1 after the canonical frontmatter identity replacement. Package and adapter configuration are unchanged.
+
 ## 2.1.0 — 2026-10-18
 
 - Document chat: the skill (pinned from `thegram-mcp` 3.2.0, commit `bc0e2dd`) tells ChatGPT how to subscribe to the `chat.task.created` MCP event and answer each request with `chat_task_get`, `chat_doc_read` and one `chat_task_submit`, which read and change only the document the request came from. The contract reference lists the chat tools, event and errors.
