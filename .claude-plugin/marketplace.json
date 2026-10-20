@@ -1,7 +1,7 @@
 {
 	"name": "thegram-cloud",
 	"owner": {
-		"name": "clab-one"
+		"name": "thegram-one"
 	},
 	"description": "Where your thoughts connect: plans, notes, ideas and knowledge in .gram files shared by people and AI.",
 	"plugins": [

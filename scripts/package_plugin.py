@@ -360,7 +360,7 @@ def shared_skill_hashes(files: dict[str, bytes], prefix: str) -> dict[str, str]:
 def verify_shared_skill(root: Path) -> None:
     lock = json.loads(read_local_file(root / "skill-source.lock.json"))
     source = lock.get("source", {})
-    if source.get("repository") != "clab-one/thegram-mcp" or source.get("path") != "skills/thegram-memory":
+    if source.get("repository") != "thegram-one/thegram-mcp" or source.get("path") != "skills/thegram-memory":
         raise PackageError("The shared workflow lock names an unexpected source")
     if not re.fullmatch(r"[0-9a-f]{40}", str(source.get("commit", ""))):
         raise PackageError("The shared workflow must pin a full source commit")

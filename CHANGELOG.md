@@ -26,7 +26,7 @@
 
 - Document chat: the skill (pinned from `thegram-mcp` 3.2.0, commit `bc0e2dd`) tells ChatGPT how to subscribe to the `chat.task.created` MCP event and answer each request with `chat_task_get`, `chat_doc_read` and one `chat_task_submit`, which read and change only the document the request came from. The contract reference lists the chat tools, event and errors.
 - The listing adds the document chat capability, one positive and one negative review case, and 2.1.0 release notes. The MCP E2E accepts the four chat tools beside the `gram_*` tools.
-- The OAuth configuration and MCP endpoint are unchanged. The tools and event need the vaultd release from clab-one/thegram-vault#26; rescan the MCP server on the plugin page after it is deployed.
+- The OAuth configuration and MCP endpoint are unchanged. The tools and event need the vaultd release from thegram-one/thegram-vault#26; rescan the MCP server on the plugin page after it is deployed.
 
 ## 2.0.9 — 2026-10-16
 

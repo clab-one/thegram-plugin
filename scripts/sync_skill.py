@@ -41,7 +41,7 @@ def sync(source: Path, root: Path) -> dict:
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_bytes(data)
     lock = {
-        "source": {"repository": "clab-one/thegram-mcp", "commit": commit, "path": CANONICAL_ROOT},
+        "source": {"repository": "thegram-one/thegram-mcp", "commit": commit, "path": CANONICAL_ROOT},
         "files": shared_skill_hashes(files, CANONICAL_ROOT),
     }
     (root / "skill-source.lock.json").write_bytes(json_bytes(lock))

@@ -25,7 +25,7 @@ Manage access and disconnect agents in **Settings → Connected agents** at http
 
 Discover supported tools from the running MCP server; a grant never creates a capability the server does not offer. Coding-agent API keys are `KindAgent` credentials confined to MCP and their explicit scopes. Logto API-audience tokens represent an app user (`KindBearer`), not an MCP agent; native API responses do not establish MCP agent permissions.
 
-[`clab-one/thegram-mcp`](https://github.com/clab-one/thegram-mcp) owns **thegram-memory**, the coding-agent integration for Claude Code, Codex, OpenCode and OMP. Version 3.1 uses a scoped API key with the same Cloud MCP and requires no desktop app or DMG. This repository owns the OAuth cloud plugin for the OpenAI and Claude directories; API keys do not replace those OAuth connections.
+[`thegram-one/thegram-mcp`](https://github.com/thegram-one/thegram-mcp) owns **thegram-memory**, the coding-agent integration for Claude Code, Codex, OpenCode and OMP. Version 3.1 uses a scoped API key with the same Cloud MCP and requires no desktop app or DMG. This repository owns the OAuth cloud plugin for the OpenAI and Claude directories; API keys do not replace those OAuth connections.
 
 Its `skills/thegram-memory/` is the canonical workflow. This repository imports that committed directory into `skills/thegram-cloud/`, pins every normalized file hash in `skill-source.lock.json` and keeps only the skill name `thegram-cloud`. Builds fail on drift; change the workflow in `thegram-mcp` first, then run `scripts/sync_skill.py --source /path/to/thegram-mcp`.
 
@@ -33,13 +33,13 @@ Its `skills/thegram-memory/` is the canonical workflow. This repository imports 
 | --- | --- | --- |
 | OpenAI plugin directory (ChatGPT, Codex) | `thegram-cloud-<version>.zip` from releases | Remote MCP, OAuth |
 | Claude plugin directory | This repository root (`.claude-plugin/plugin.json`) | Remote MCP, OAuth |
-| Local coding agents | `clab-one/thegram-mcp` | Scoped API key |
+| Local coding agents | `thegram-one/thegram-mcp` | Scoped API key |
 
 ## Install with the bundled skill
 
-The [versioned release ZIP](https://github.com/clab-one/thegram-plugin/releases) is the portable package for OpenAI directory submission: root `plugin.json` carries the listing (`extensions.com.openai.interface`), icons, review cases and publication notes, with `mcp.json`, `skills/`, assets and the `.claude-plugin`/`.mcp.json` compatibility files. It must not contain `.app.json` or an `apps` binding. Submit the Claude directory listing from this repository at the `.claude-plugin/plugin.json` root through Claude's developer portal. Package checks, directory approval and end-user installation are separate steps.
+The [versioned release ZIP](https://github.com/thegram-one/thegram-plugin/releases) is the portable package for OpenAI directory submission: root `plugin.json` carries the listing (`extensions.com.openai.interface`), icons, review cases and publication notes, with `mcp.json`, `skills/`, assets and the `.claude-plugin`/`.mcp.json` compatibility files. It must not contain `.app.json` or an `apps` binding. Submit the Claude directory listing from this repository at the `.claude-plugin/plugin.json` root through Claude's developer portal. Package checks, directory approval and end-user installation are separate steps.
 
-In Claude Code, add this repository as a marketplace and install the plugin with `/plugin marketplace add clab-one/thegram-plugin` and `/plugin install thegram-cloud@thegram-cloud`.
+In Claude Code, add this repository as a marketplace and install the plugin with `/plugin marketplace add thegram-one/thegram-plugin` and `/plugin install thegram-cloud@thegram-cloud`.
 
 For the step-by-step connection flow, see [the install guide](https://thegram.one/install/#chatgpt) and its [agent-readable guide](https://thegram.one/install/chatgpt.md). Sign in at [Thegram Cloud](https://vault.thegram.one), finish sign-up, and keep OAuth when connecting. First sight grants write to the owned default Thegram vault only. Connect Drive in **Settings → Connections**, then explicitly allow this agent in **Settings → Connected agents** when needed.
 

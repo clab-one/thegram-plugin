@@ -49,7 +49,7 @@ class PackagingTests(unittest.TestCase):
         files = {"SKILL.md": (self.root / "skills/thegram-cloud/SKILL.md").read_bytes(),
                  "references/examples.md": (self.root / "skills/thegram-cloud/references/examples.md").read_bytes()}
         self.put("skill-source.lock.json", package.json_bytes({
-            "source": {"repository": "clab-one/thegram-mcp", "commit": "0" * 40, "path": "skills/thegram-memory"},
+            "source": {"repository": "thegram-one/thegram-mcp", "commit": "0" * 40, "path": "skills/thegram-memory"},
             "files": {name: hashlib.sha256(data.replace(b"name: thegram-cloud\n", b"name: thegram-memory\n")
                        if name == "SKILL.md" else data).hexdigest() for name, data in files.items()},
         }))

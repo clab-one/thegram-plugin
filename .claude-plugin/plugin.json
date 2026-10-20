@@ -7,9 +7,9 @@
     "name": "Roy Kim"
   },
   "homepage": "https://thegram.one",
-  "repository": "https://github.com/clab-one/thegram-plugin",
+  "repository": "https://github.com/thegram-one/thegram-plugin",
   "icon": "./assets/logo.png",
-  "supportUrl": "https://github.com/clab-one/thegram-plugin/issues",
+  "supportUrl": "https://github.com/thegram-one/thegram-plugin/issues",
   "privacyPolicyUrl": "https://vault.thegram.one/legal/privacy",
   "termsOfServiceUrl": "https://vault.thegram.one/legal/terms",
   "license": "UNLICENSED",

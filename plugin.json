@@ -8,7 +8,7 @@
     "url": "https://thegram.one"
   },
   "homepage": "https://thegram.one",
-  "repository": "https://github.com/clab-one/thegram-plugin",
+  "repository": "https://github.com/thegram-one/thegram-plugin",
   "license": "UNLICENSED",
   "keywords": [
     "thegram",
@@ -48,7 +48,7 @@
           "Retrieve context with connected AI and save information with your authorization"
         ],
         "websiteURL": "https://thegram.one",
-        "supportURL": "https://github.com/clab-one/thegram-plugin/issues",
+        "supportURL": "https://github.com/thegram-one/thegram-plugin/issues",
         "privacyPolicyURL": "https://vault.thegram.one/legal/privacy",
         "termsOfServiceURL": "https://vault.thegram.one/legal/terms",
         "defaultPrompt": [
