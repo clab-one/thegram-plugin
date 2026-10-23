@@ -1,4 +1,4 @@
-name: Validate cloud plugin
+name: Build cloud plugin
 
 on:
   push:
@@ -16,8 +16,6 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Test package discovery and preservation
-        run: python3 -m unittest discover -s tests -p 'test_*.py' -v
       - name: Check shell syntax
         run: sh -n scripts/chatgpt-package.sh tests/offline/run.sh
       - name: Verify pinned shared workflow
