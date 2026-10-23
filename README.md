@@ -106,7 +106,7 @@ python3 scripts/package_plugin.py validate /tmp/thegram-cloud-2.4.1.zip --expect
 claude plugin validate --strict .
 ```
 
-The offline packaging tests use synthetic exported ZIPs to check preservation, discovery, owned-folder replacement, references and unsafe-archive rejection. No OAuth tokens or personal files are required. The CI workflow runs these checks for the exact source commit.
+The CI workflow checks shell syntax and the pinned shared workflow, then builds and validates the portable package for the exact source commit. Complete lifecycle verification runs as the final integrated E2E after all builds; CI does not run separate unit or slice tests.
 
 For cloud-wrapper lifecycle behavior, use [tests/offline](tests/offline/README.md) with the matching vault source and native Core binary. It exercises the shipped fictional payloads in temporary storage. This verifies the API layer independently of production mounts and does not establish end-user installation, provider/OAuth behavior or UI rendering.
 
