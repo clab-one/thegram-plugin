@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.4.0 — 2026-10-23
+
+- Import the canonical `thegram-memory` 3.5.0 read-mode workflow. Agents answer requests sent in read mode without operations; `E_READ_ONLY` means resubmit with the reply alone.
+- Keep the OAuth configuration, MCP endpoint, plugin identity and other bundled workflows unchanged.
+
 ## 2.3.0 — 2026-10-19
 
 - Import the canonical 3.4.0 skill: an agent keeps each piece of work as one task (`owner` its agent name, `s` the repository, `start`/`done`), moves `x` with the work (`waiting` with the question, `review` with what to look at, `blocked` with what stops it, `completed` with the outcome) and records each PR, merge, release, deployment or verification as one step event linked `part-of` that task, never one per commit or test run.
