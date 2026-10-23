@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.4.1 — 2026-10-23
+
+- Import the canonical `thegram-memory` 3.5.1 search-first project-binding workflow; preserve the 2.4.0 document-chat read-mode behavior.
+- Keep the OAuth configuration, MCP endpoint, plugin identity and other bundled workflows unchanged.
+
 ## 2.4.0 — 2026-10-23
 
 - Import the canonical `thegram-memory` 3.5.0 read-mode workflow. Agents answer requests sent in read mode without operations; `E_READ_ONLY` means resubmit with the reply alone.

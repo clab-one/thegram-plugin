@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "thegram-cloud",
-  "version": "2.4.0",
+"version": "2.4.1",
   "description": "Organize plans, notes, tasks, ideas and knowledge in structured .gram files shared by people and supported AI assistants. Retrieve relevant records, relationships and revision history from authorized Thegram vaults or connected Google Drive. Save only within the user's authorized scope and destination, then verify the result.",
   "author": {
     "name": "Roy Kim",
@@ -135,7 +135,7 @@
         "demo_recording_url": "https://thegram.one/review/openai/"
       },
       "publication": {
-        "release_notes": "2.4.0: Import the canonical thegram-memory 3.5.0 read-mode workflow. Agents answer requests sent in read mode without operations; OAuth configuration and MCP endpoint are unchanged.",
+        "release_notes": "2.4.1: Import the canonical thegram-memory 3.5.1 search-first project-binding workflow, preserving document-chat read mode; OAuth configuration and MCP endpoint are unchanged.",
         "translations": {
           "ko-KR": {
             "subtitle": "당신의 모든 생각이 이어지는 곳.",

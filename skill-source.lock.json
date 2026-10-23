@@ -1,11 +1,11 @@
 {
   "source": {
     "repository": "thegram-one/thegram-mcp",
-    "commit": "a03e49b6b38e20816216628e464df5b729891572",
+    "commit": "fe43f106776dd44f4b22a7869fb86f4735919ddb",
     "path": "skills/thegram-memory"
   },
   "files": {
-    "SKILL.md": "bdc678a441aecc5784657f992ae6a0dcfa23dae8b4275f7ca8bc81c697746bbc",
+    "SKILL.md": "156d60af6bc378dd64f2f786da14dc90366773d2a69d792426aadf44e85f624d",
     "backfill.md": "f1ae6d37275da1a41a035969d572f3ed4e0b2c5267c99034d5666883840aa62a",
     "references/authoring-patterns.md": "c8f2e27727b80975531f67a775074d6d90d10bb1af878fc424b910ef09e48b2b",
     "references/classification.json": "287f12f2a466dce2cca337da07a154a93caa2ae62a1bcbfa3ab1a7341d168269",
