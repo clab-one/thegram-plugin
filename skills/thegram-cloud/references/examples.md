@@ -6,7 +6,7 @@ The linked [lifecycle.json](lifecycle.json) is **fictional, synthetic test data*
 
 For “What did we choose for Atlas rollout, and is it actually shipped?”, discover mounts, brief the existing document, recall rollout decisions, then read their context and implementing events. The fixture's `retrieval` calls demonstrate `gram_projects`, `gram_brief`, `gram_recall`, selective `gram_context`, section reads and relations. The correct answer distinguishes an accepted decision from verified implementation. This request alone causes **no write**.
 
-On a later visit use `gram_changes` with the saved `next`, then fetch the relevant changed records. For “What did we know before rollout?” use `gram_state {selector:{revision:0}}` or a sourced recording-time boundary. Do not derive a past state by deleting current records in a copy.
+On a later visit use `gram_changes` with the saved `next`, then fetch the relevant changed records. For “What did we know before rollout?” use `gram_read {path, revision: 0}` or a sourced recording-time boundary. Do not derive a past state by deleting current records in a copy.
 
 ## Create and evolve within an authorized destination
 

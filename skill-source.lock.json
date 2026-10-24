@@ -1,17 +1,18 @@
 {
   "source": {
-    "repository": "thegram-one/thegram-mcp",
-    "commit": "fe43f106776dd44f4b22a7869fb86f4735919ddb",
-    "path": "skills/thegram-memory"
+    "archive": "thegram-cloud-4.0.2.zip",
+    "sha256": "21ac9008c33326216e0192feb6670d286595381ba812825442c0d969d33ba596",
+    "version": "4.0.2",
+    "path": "skills/thegram-cloud"
   },
   "files": {
-    "SKILL.md": "156d60af6bc378dd64f2f786da14dc90366773d2a69d792426aadf44e85f624d",
-    "backfill.md": "f1ae6d37275da1a41a035969d572f3ed4e0b2c5267c99034d5666883840aa62a",
-    "references/authoring-patterns.md": "c8f2e27727b80975531f67a775074d6d90d10bb1af878fc424b910ef09e48b2b",
+    "SKILL.md": "02bf40e443a77eaf998597a51f528da7f1e1ab9bfca07b1e92e53554f3088c68",
+    "backfill.md": "d1b321f690b36f12e7335b0c6b6248eaa73bb70cddf8b2dd3cdb8fa844879e43",
+    "references/authoring-patterns.md": "f411b9b9c5105c399218780231777a96e61912eb13dcb7a2283abb99622fe680",
     "references/classification.json": "287f12f2a466dce2cca337da07a154a93caa2ae62a1bcbfa3ab1a7341d168269",
-    "references/contracts.md": "cbee28adf1e7e98e03e280176231189e8111701719171d3cd012d33d8e2471b0",
-    "references/examples.md": "24e7d3511fc690a1d8b27649534d9ee89150fa44d3b8989f6140e4997bbfde39",
-    "references/lifecycle.json": "487213e60110b3e5e5bf4fb578f6521942944960df7a2b78d8c3203a1501cd86",
+    "references/contracts.md": "b3cff49ff17b1a4f32751508e25448c08623a4110d49e595d4c5cfcecdc66e2e",
+    "references/examples.md": "8278ea7e2d8d70bf92cc4de32697117036a860b2860222b19e68bd9ddefc0a1b",
+    "references/lifecycle.json": "7c9d09fc4e9a47c852f4d36b25e3b3da8679bde1e76bec0c4c55c8bd3f94fb35",
     "references/widget-data.md": "d19315de8b8c85e532f93420b1323c329f393c2db890f9e7850a77d7cc2e7ae4"
   }
 }

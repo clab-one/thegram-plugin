@@ -1,5 +1,12 @@
 # Changelog
 
+## 4.0.2 — 2026-10-24
+
+- Import the validated public 4.0.2 workflow with self-contained records, natural-question retrieval checks and source-read revision/hash protection for section replacements.
+- Pin the accepted release archive SHA256 and exact skill file hashes instead of the obsolete `thegram-memory` source path.
+- Keep `thegram-cloud`, the remote MCP URL and OAuth configuration unchanged; remove document-chat delegation from current installation guidance.
+- Retain the existing Claude listing metadata and marketplace while updating their versions for the directory rescan.
+
 ## 2.4.1 — 2026-10-23
 
 - Import the canonical `thegram-memory` 3.5.1 search-first project-binding workflow; preserve the 2.4.0 document-chat read-mode behavior.

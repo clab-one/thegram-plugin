@@ -13,3 +13,7 @@ Use standalone record placements, inline mentions, explicit links and filtered c
 Revision recording time reflects when information was actually recorded; sourced event time and effective time are separate. Do not fabricate recording history, backdate an import or rebuild a document to imitate a sample.
 
 Do not imitate record counts, revision counts, repeated inspection events or link density as quality targets. Explain what changed and why, retain uncertainty, and put evidence near the supported claims so readers can understand purpose, state, reasons and remaining work.
+
+Write records that survive retrieval outside their document: a concise `t` identifies the subject and claim, and a short `d` retains scope, essential conditions, exceptions and uncertainty from the source. For illustration only, if a source explicitly chooses monthly subscriptions for Cedar's paid team plan while leaving its personal plan free, "Pricing decision / Bill monthly" loses the subject and boundary; "Cedar paid team plan uses monthly subscriptions / Monthly billing applies to Cedar's paid team plan; the personal plan remains free" preserves them. Never introduce these details unless the source establishes them, and never add search terms as a list.
+
+After important material is saved and read back, ask a representative natural question and open the retrieved record or section to check the answer (SKILL.md section 9). A miss calls for a source-backed clarity check or an honest retrieval limitation, not duplicate records or repeated rank tuning.

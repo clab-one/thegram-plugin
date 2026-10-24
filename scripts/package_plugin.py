@@ -18,6 +18,7 @@ import posixpath
 import re
 import stat
 import tempfile
+from typing import BinaryIO
 from urllib.parse import urlsplit
 import zipfile
 
@@ -64,7 +65,7 @@ def check_file_tree(files: dict[str, bytes]) -> None:
                 raise PackageError(f"File/directory collision at {parent}")
 
 
-def read_archive(path: Path, metadata: dict[str, zipfile.ZipInfo] | None = None) -> dict[str, bytes]:
+def read_archive(path: Path | BinaryIO, metadata: dict[str, zipfile.ZipInfo] | None = None) -> dict[str, bytes]:
     files: dict[str, bytes] = {}
     seen: dict[str, str] = {}
     directories: set[str] = set()
@@ -351,8 +352,6 @@ def shared_skill_hashes(files: dict[str, bytes], prefix: str) -> dict[str, str]:
     hashes = {}
     for name, data in sorted(files.items()):
         relative = name.removeprefix(prefix + "/")
-        if relative == "SKILL.md":
-            data = data.replace(b"name: thegram-cloud\n", b"name: thegram-memory\n", 1)
         hashes[relative] = hashlib.sha256(data).hexdigest()
     return hashes
 
@@ -360,10 +359,12 @@ def shared_skill_hashes(files: dict[str, bytes], prefix: str) -> dict[str, str]:
 def verify_shared_skill(root: Path) -> None:
     lock = json.loads(read_local_file(root / "skill-source.lock.json"))
     source = lock.get("source", {})
-    if source.get("repository") != "thegram-one/thegram-mcp" or source.get("path") != "skills/thegram-memory":
-        raise PackageError("The shared workflow lock names an unexpected source")
-    if not re.fullmatch(r"[0-9a-f]{40}", str(source.get("commit", ""))):
-        raise PackageError("The shared workflow must pin a full source commit")
+    archive = source.get("archive", "")
+    if source.get("path") != SKILL_ROOT or not isinstance(archive, str) or not archive.endswith(".zip") or "/" in archive or "\\" in archive:
+        raise PackageError("The shared workflow lock must identify its public release archive")
+    if not re.fullmatch(r"[0-9a-f]{64}", str(source.get("sha256", ""))):
+        raise PackageError("The shared workflow must pin the release archive SHA256")
+    check_version(source.get("version"))
     if shared_skill_hashes(local_tree(root, SKILL_ROOT), SKILL_ROOT) != lock.get("files"):
         raise PackageError("Bundled workflow differs from the pinned shared skill; run scripts/sync_skill.py")
 
